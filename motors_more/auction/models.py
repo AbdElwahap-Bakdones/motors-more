@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Q
 
 # Create your models here.
 
@@ -21,6 +22,11 @@ class User(AbstractUser):
     email = models.EmailField(('email address'), unique=True)
     phone = models.CharField(("phone"), max_length=50, null=True)
     location = models.ForeignKey(Province, on_delete=models.PROTECT, null=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'phone', 'location',]
+
+    def __str__(self):
+        return self.email
 
 
 class Client(models.Model):

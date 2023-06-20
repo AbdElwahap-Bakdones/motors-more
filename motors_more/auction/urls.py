@@ -6,5 +6,5 @@ from rest_framework.routers import SimpleRouter
 # router.register('create_user', views.CreateClientMixin)
 
 urlpatterns = [
-    path('', views.CreateClientMixin.as_view()),
+    path('create_client', views.CreateClientMixin.as_view()),
 ]

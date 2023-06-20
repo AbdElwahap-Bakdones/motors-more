@@ -1,0 +1,12 @@
+{
+    "CreateClient":
+    {
+        "gender": "M",
+        "email": "ee@gg.com",
+        "password": "P@ssw0rd",
+        "first_name": "f1",
+        "last_name": "l1",
+        "phone": "0930075475",
+        "location": 1
+    }
+}

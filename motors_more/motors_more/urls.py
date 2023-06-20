@@ -16,9 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-
+from auction import urls as auction_url
 urlpatterns = [
+    path('', include(auction_url)),
     path('admin/', admin.site.urls),
     path(r'auth/', include('djoser.urls')),
     path(r'auth/', include('djoser.urls.jwt')),
+
 ]

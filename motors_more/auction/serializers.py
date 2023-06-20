@@ -1,11 +1,11 @@
 from djoser.serializers import UserCreateSerializer as DjoserUserCreateSerializer
 from rest_framework import serializers
-from auction import models
+from . import models
 
 
 class UserCreateSerializer(DjoserUserCreateSerializer):
     class Meta(DjoserUserCreateSerializer.Meta):
-        fields = ['id', 'username', 'email', 'password', 'email', 'first_name', 'last_name', 'phone', 'location']
+        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'phone', 'location',]
 
 
 class ClientCreateSerializer(serializers.ModelSerializer):
@@ -13,4 +13,4 @@ class ClientCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Client
-        fields = ['id', 'gender', 'user_id']
+        fields = ['id', 'user_id', 'gender']

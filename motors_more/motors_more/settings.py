@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -112,8 +113,13 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('motors&more',),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=60),
+
 }
-DJOSER = {'SERIALIZERS': {'user_create': 'auction.serializers.UserCreateSerializer'}}
+DJOSER = {
+    'SERIALIZERS': {'user_create': 'auction.serializers.UserCreateSerializer'},
+    'LOGIN_FIELD': 'email'
+}
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 

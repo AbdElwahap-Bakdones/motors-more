@@ -28,7 +28,17 @@ SECRET_KEY = 'django-insecure-z#q000g=*o255f=yloect*efe$wplbhrhq-p+ctd!w2rci=szq
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'abdelwahapbak2.pythonanywhere.com']
-
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
 # Application definition
 

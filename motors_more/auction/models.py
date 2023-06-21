@@ -23,7 +23,7 @@ class User(AbstractUser):
     phone = models.CharField(("phone"), max_length=50, null=True)
     location = models.ForeignKey(Province, on_delete=models.PROTECT, null=True)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'phone', 'location',]
+    REQUIRED_FIELDS = ['username', 'phone',]
 
     def __str__(self):
         return self.email
@@ -69,10 +69,11 @@ class Car(models.Model):
     gear_art = [('Manual', 'Manual'), ('Automatic', 'Automatic')]
     gear_type = models.CharField(choices=gear_art, max_length=150)
     cylinders = models.IntegerField()
-    notes = models.TextField()
+    notes = models.TextField(null=True)
     price = models.FloatField()
     location = models.ForeignKey(Province, on_delete=models.PROTECT)
-
+    def __str__(self):
+        return self.manufacturing_year.strftime('%Y-%m-%d')
 
 class CarOption(models.Model):
     option_id = models.ForeignKey(Option, on_delete=models.CASCADE)

@@ -7,7 +7,8 @@ from django.db.models import Q
 
 class Country(models.Model):
     country_name = models.CharField(max_length=50)
-
+    def __str__(self):
+        return self.country_name
 
 class Province(models.Model):
     province_name = models.CharField(max_length=50)

@@ -29,4 +29,13 @@ class CarSerializer(serializers.ModelSerializer):
         model = models.Car
         fields = ['user_id','user','mileage','color','type','manufacturing_year_',
                   'clean_title','engine_type','gear_type','cylinders','notes','price','location']
-        
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Country
+        fields = '__all__'
+
+class ProvinceSerializer(serializers.ModelSerializer):
+    country = serializers.ReadOnlyField(source='country_id.country_name')
+    class Meta:
+        model = models.Province
+        fields = ['id','province_name','country']

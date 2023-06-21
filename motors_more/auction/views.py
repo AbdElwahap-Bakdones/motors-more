@@ -38,4 +38,29 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
 class Car(generics.ListCreateAPIView,generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
-    permission_classes =[AllowAny]
+    permission_classes =[IsAuthenticated]
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+class Country(generics.ListAPIView):
+    queryset = models.Country.objects.all()
+    serializer_class = serializers.CountrySerializer
+    permission_classes = [AllowAny]
+
+class Province(generics.ListAPIView):
+    queryset = models.Province.objects.all()
+    serializer_class = serializers.ProvinceSerializer
+    permission_classes = [AllowAny]
+
+    def list(self, request,country_id, *args, **kwargs):
+        queryset = models.Province.objects.filter(country_id=country_id)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

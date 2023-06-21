@@ -8,4 +8,6 @@ from rest_framework.routers import SimpleRouter
 urlpatterns = [
     path('create_client', views.CreateClientMixin.as_view()),
     path('car', views.Car.as_view()),
+    path('country', views.Country.as_view()),
+    path('province/<int:country_id>', views.Province.as_view()),
 ]

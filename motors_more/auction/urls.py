@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include,re_path
 from . import views
 from rest_framework.routers import SimpleRouter
 
@@ -7,7 +7,8 @@ from rest_framework.routers import SimpleRouter
 
 urlpatterns = [
     path('create_client', views.CreateClientMixin.as_view()),
-    path('car', views.Car.as_view()),
+    path('car/', views.Cars.as_view(), name='car-list'),
+    path('car/<int:pk>/', views.Car.as_view(), name='car-detail'),
     path('country', views.Country.as_view()),
     path('province/<int:country_id>', views.Province.as_view()),
 ]

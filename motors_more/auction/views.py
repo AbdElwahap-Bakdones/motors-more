@@ -34,12 +34,32 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
         headers = self.get_success_headers(client_serializer.data)
         return Response(client_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response({}, status=status.HTTP_201_CREATED)
+    
+class Cars(generics.ListAPIView):
+    queryset = models.Car.objects.all()
+    serializer_class = serializers.CarSerializer
+    permission_classes =[AllowAny]
+    def list(self, request, *args, **kwargs):
+        # queryset = models.Car.objects.filter(user_id__email=request.user)
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-class Car(generics.ListCreateAPIView,generics.RetrieveUpdateDestroyAPIView):
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+class Car(generics.CreateAPIView,generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
     permission_classes =[IsAuthenticated]
+    def retrieve(self, request,pk, *args, **kwargs):
+        print('retrive')
+        print(request.user)
+        return super().retrieve(request, pk,*args, **kwargs)
+    
     def create(self, request, *args, **kwargs):
+        print(request.user)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

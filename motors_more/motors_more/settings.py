@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'auction',
     'rest_framework',
     'djoser',
+    'webhooks',
 ]
 
 MIDDLEWARE = [

@@ -27,24 +27,29 @@ SECRET_KEY = 'django-insecure-z#q000g=*o255f=yloect*efe$wplbhrhq-p+ctd!w2rci=szq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'abdelwahapbak2.pythonanywhere.com']
-# CORS_ALLOW_HEADERS = [
-#     'accept',
-#     'accept-encoding',
-#     'authorization',
-#     'content-type',
-#     'dnt',
-#     'origin',
-#     'user-agent',
-#     'x-csrftoken',
-#     'x-requested-with',
-# ]
+ALLOWED_HOSTS = ['*','localhost', '127.0.0.1', 'abdelwahapbak2.pythonanywhere.com']
+CORS_ALLOW_HEADERS = [
+    '*',
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 CORS_ORIGIN_ALLOW_ALL = True
-
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000",
+    "http://localhost:5175",
+]
 # Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'corsheaders',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -56,6 +61,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

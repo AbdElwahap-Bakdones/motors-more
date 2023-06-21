@@ -34,3 +34,8 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
         headers = self.get_success_headers(client_serializer.data)
         return Response(client_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response({}, status=status.HTTP_201_CREATED)
+
+class Car(generics.ListCreateAPIView,generics.RetrieveUpdateDestroyAPIView):
+    queryset = models.Car.objects.all()
+    serializer_class = serializers.CarSerializer
+    permission_classes =[AllowAny]

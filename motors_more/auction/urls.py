@@ -7,4 +7,5 @@ from rest_framework.routers import SimpleRouter
 
 urlpatterns = [
     path('create_client', views.CreateClientMixin.as_view()),
+    path('car', views.Car.as_view()),
 ]

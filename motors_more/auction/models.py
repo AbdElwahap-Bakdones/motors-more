@@ -47,7 +47,7 @@ class Company(models.Model):
 
 class Car(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    mileage = models.IntegerField()
+    mileage = models.CharField( max_length=50)
     color = models.CharField(max_length=50)
     type_art = [
         ('SEDAN', 'SEDAN'),
@@ -69,9 +69,9 @@ class Car(models.Model):
     engine_type = models.CharField(choices=engine_art, max_length=250)
     gear_art = [('Manual', 'Manual'), ('Automatic', 'Automatic')]
     gear_type = models.CharField(choices=gear_art, max_length=150)
-    cylinders = models.IntegerField()
+    cylinders = models.CharField(max_length=50)
     notes = models.TextField(null=True)
-    price = models.FloatField()
+    price = models.CharField(max_length=50)
     location = models.ForeignKey(Province, on_delete=models.PROTECT)
     def __str__(self):
         return self.manufacturing_year.strftime('%Y-%m-%d')

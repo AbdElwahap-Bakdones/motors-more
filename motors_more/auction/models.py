@@ -77,7 +77,7 @@ class Car(models.Model):
     location = models.ForeignKey(Province, on_delete=models.PROTECT)
 
     def __str__(self):
-        return self.manufacturing_year.strftime('%Y-%m-%d')
+        return self.user_id.email
 
 
 class CarOption(models.Model):

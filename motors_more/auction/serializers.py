@@ -26,11 +26,10 @@ class ClientCreateSerializer(serializers.ModelSerializer):
 
 class CarSerializer(serializers.ModelSerializer):
     user = UserCreateSerializer(source='user_id', read_only=True)
-    manufacturing_year_ = serializers.DateField(source='manufacturing_year', format='%Y-%m-%d')
 
     class Meta:
         model = models.Car
-        fields = ['user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year_',
+        fields = ['user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year',
                   'clean_title', 'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location']
 
 

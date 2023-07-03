@@ -7,8 +7,10 @@ from django.db.models import Q
 
 class Country(models.Model):
     country_name = models.CharField(max_length=50)
+
     def __str__(self):
         return self.country_name
+
 
 class Province(models.Model):
     province_name = models.CharField(max_length=50)
@@ -47,7 +49,7 @@ class Company(models.Model):
 
 class Car(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    mileage = models.CharField( max_length=50)
+    mileage = models.CharField(max_length=50)
     color = models.CharField(max_length=50)
     type_art = [
         ('SEDAN', 'SEDAN'),
@@ -59,7 +61,7 @@ class Car(models.Model):
         ('MINIVAN', 'MINIVAN'),
         ('PICKUP', 'PICKUP')]
     type = models.CharField(choices=type_art, max_length=50)
-    manufacturing_year = models.DateField()
+    manufacturing_year = models.PositiveIntegerField()
     clean_title = models.BooleanField()
     engine_art = [
         ('ESS', 'Internal petrol combustion engine'),
@@ -73,8 +75,10 @@ class Car(models.Model):
     notes = models.TextField(null=True)
     price = models.CharField(max_length=50)
     location = models.ForeignKey(Province, on_delete=models.PROTECT)
+
     def __str__(self):
         return self.manufacturing_year.strftime('%Y-%m-%d')
+
 
 class CarOption(models.Model):
     option_id = models.ForeignKey(Option, on_delete=models.CASCADE)

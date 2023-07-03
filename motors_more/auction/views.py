@@ -59,7 +59,7 @@ class Cars(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
 
-        # request.data['user_id']=request.user.pk
+        request.data['user_id'] = request.user.pk
         # request.data['user_id']='ee@gg.com'
         print(request.data)
         serializer = self.get_serializer(data=request.data)

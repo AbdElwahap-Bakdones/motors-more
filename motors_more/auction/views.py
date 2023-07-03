@@ -44,11 +44,11 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
 class Cars(generics.ListCreateAPIView):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
-        # queryset = models.Car.objects.filter(user_id__email= request.user)
-        queryset = self.filter_queryset(self.get_queryset())
+        queryset = models.Car.objects.filter(user_id__email=request.user)
+        # queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

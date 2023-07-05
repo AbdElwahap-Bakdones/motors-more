@@ -47,6 +47,18 @@ class Company(models.Model):
     user_id = models.OneToOneField(User, on_delete=models.CASCADE)
 
 
+class CarBrand(models.Model):
+    name = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.name
+
+
+class CarModels(models.Model):
+    name = models.CharField(max_length=150)
+    brand_id = models.ForeignKey(CarBrand, on_delete=models.CASCADE)
+
+
 class Car(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     mileage = models.CharField(max_length=50)
@@ -75,6 +87,7 @@ class Car(models.Model):
     notes = models.TextField(null=True)
     price = models.CharField(max_length=50)
     location = models.ForeignKey(Province, on_delete=models.PROTECT)
+    car_models = models.ForeignKey(CarModels, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.user_id.email

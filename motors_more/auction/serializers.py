@@ -45,3 +45,15 @@ class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Province
         fields = ['id', 'province_name', 'country']
+
+
+class BrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CarBrand
+        fields = '__all__'
+
+
+class CarModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CarModels
+        fields = '__all__'

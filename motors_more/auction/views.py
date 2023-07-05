@@ -29,9 +29,10 @@ def test(request):
         'Land Rover': ['Range Rover Evoque', 'Discovery Sport', 'Range Rover Sport', 'Range Rover Velar', 'Defender']
     }
     for brand in car_brands:
+        models.CarBrand(name=brand).save()
         brand_pk = models.CarBrand.objects.filter(name=brand).get()
-        # for model in car_brands[brand]:
-        # models.CarModels(name=model, brand_id=brand_pk).save()
+        for model in car_brands[brand]:
+            models.CarModels(name=model, brand_id=brand_pk).save()
     data = models.CarModels.objects.all().values()
     return Response(data=data, status=status.HTTP_200_OK)
 

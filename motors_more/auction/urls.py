@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.conf.urls.static import static
+
 from django.urls import path, include, re_path
 from . import views
 from rest_framework.routers import SimpleRouter
@@ -14,4 +17,4 @@ urlpatterns = [
     path('brands', views.Brands.as_view()),
     path('car_model/<int:brand_id>', views.CarModel.as_view()),
     path('test', views.test),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

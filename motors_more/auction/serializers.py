@@ -30,7 +30,7 @@ class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Car
         fields = ['user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year',
-                  'clean_title', 'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location']
+                  'clean_title', 'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location', 'car_models']
 
 
 class CountrySerializer(serializers.ModelSerializer):

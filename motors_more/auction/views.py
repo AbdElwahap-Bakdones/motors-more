@@ -38,13 +38,13 @@ def test(request):
                                      "Cosmetic repairs", "Seat upholstery cleaning", "Dashboard polishing"]
     car_dict["HVAC System"] = ["Filter replacements", "Refrigerant level check",
                                "System functionality test", "Heater core inspection", "A/C compressor replacement"]
-    for kind in car_dict:
-        models.MainSection(name=kind).save()
-        # pk = models.MainSection.objects.filter(name=kind)
-        # for d in car_dict[kind]:
-        #     models.TechnicalCondition()
-    data = models.MainSection.objects.all().values()
-    return Response(data={'data': data}, status=status.HTTP_200_OK)
+    # for kind in car_dict:
+    #     models.MainSection(name=kind).save()
+    #     # pk = models.MainSection.objects.filter(name=kind)
+    #     # for d in car_dict[kind]:
+    #     #     models.TechnicalCondition()
+    # data = models.MainSection.objects.all().values()
+    return Response(data={'data': {}}, status=status.HTTP_200_OK)
 
 
 class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):

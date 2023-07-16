@@ -1,0 +1,17 @@
+car_brands = {
+        'Kia': ['Rio', 'Optima', 'Forte', 'Sportage', 'Sorento'],
+        'Toyota': ['Camry', 'Corolla', 'Prius', 'RAV4', 'Highlander'],
+        'Honda': ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey'],
+        'Ford': ['Focus', 'Fusion', 'Mustang', 'Escape', 'Explorer'],
+        'Chevrolet': ['Malibu', 'Cruze', 'Camaro', 'Equinox', 'Traverse'],
+        'Volkswagen': ['Golf', 'Jetta', 'Passat', 'Tiguan', 'Atlas'],
+        'Hyundai': ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Kona'],
+        'Nissan': ['Altima', 'Sentra', 'Rogue', 'Murano', 'Pathfinder'],
+        'BMW': ['3 Series', '5 Series', 'X3', 'X5', '7 Series'],
+        'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'S-Class'],
+        'Audi': ['A3', 'A4', 'Q5', 'Q7', 'A8'],
+        'Subaru': ['Impreza', 'Legacy', 'Forester', 'Outback', 'Crosstrek'],
+        'Mazda': ['Mazda3', 'Mazda6', 'CX-5', 'CX-9', 'MX-5 Miata'],
+        'Jeep': ['Wrangler', 'Grand Cherokee', 'Cherokee', 'Renegade', 'Compass'],
+        'Land Rover': ['Range Rover Evoque', 'Discovery Sport', 'Range Rover Sport', 'Range Rover Velar', 'Defender']
+    }

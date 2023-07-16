@@ -8,5 +8,21 @@
         "last_name": "l1",
         "phone": "0930075475",
         "location": 1
+    },
+    "car":
+    {
+        "mileage": "300",
+        "color": "read",
+        "type": "SEDAN",
+        "manufacturing_year": 1999,
+        "clean_title": false,
+        "engine_type": "ESS",
+        "gear_type": "Manual",
+        "cylinders": "4",
+        "notes": "ok",
+        "price": "900",
+        "location": 1,
+        "car_models": 20
     }
 }
+

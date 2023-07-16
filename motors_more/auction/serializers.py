@@ -24,13 +24,28 @@ class ClientCreateSerializer(serializers.ModelSerializer):
         # return client
 
 
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Images
+        fields = '__all__'
+
+
+class CarModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CarModels
+        fields = '__all__'
+
+
 class CarSerializer(serializers.ModelSerializer):
     user = UserCreateSerializer(source='user_id', read_only=True)
+    images = serializers.ListField(read_only=True)
+    car_model = serializers.CharField(source='car_models', read_only=True)
+    car_brand = serializers.CharField(source='car_models__name', read_only=True)
 
     class Meta:
         model = models.Car
-        fields = ['user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year',
-                  'clean_title', 'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location', 'car_models']
+        fields = ['id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title', 'engine_type',
+                  'gear_type', 'cylinders', 'notes', 'price', 'location', 'car_models', 'car_model', 'car_brand', 'images']
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -53,7 +68,13 @@ class BrandSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CarModelSerializer(serializers.ModelSerializer):
+class MediaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.CarModels
+        model = models.Media
+        fields = '__all__'
+
+
+class MainSectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.MainSection
         fields = '__all__'

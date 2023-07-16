@@ -7,34 +7,57 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 import copy
+from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
+from django.db.models import Value, CharField, Field
 
 
 @api_view(['GET', 'POST'])
 def test(request):
-    car_brands = {
-        'Kia': ['Rio', 'Optima', 'Forte', 'Sportage', 'Sorento'],
-        'Toyota': ['Camry', 'Corolla', 'Prius', 'RAV4', 'Highlander'],
-        'Honda': ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey'],
-        'Ford': ['Focus', 'Fusion', 'Mustang', 'Escape', 'Explorer'],
-        'Chevrolet': ['Malibu', 'Cruze', 'Camaro', 'Equinox', 'Traverse'],
-        'Volkswagen': ['Golf', 'Jetta', 'Passat', 'Tiguan', 'Atlas'],
-        'Hyundai': ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Kona'],
-        'Nissan': ['Altima', 'Sentra', 'Rogue', 'Murano', 'Pathfinder'],
-        'BMW': ['3 Series', '5 Series', 'X3', 'X5', '7 Series'],
-        'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'S-Class'],
-        'Audi': ['A3', 'A4', 'Q5', 'Q7', 'A8'],
-        'Subaru': ['Impreza', 'Legacy', 'Forester', 'Outback', 'Crosstrek'],
-        'Mazda': ['Mazda3', 'Mazda6', 'CX-5', 'CX-9', 'MX-5 Miata'],
-        'Jeep': ['Wrangler', 'Grand Cherokee', 'Cherokee', 'Renegade', 'Compass'],
-        'Land Rover': ['Range Rover Evoque', 'Discovery Sport', 'Range Rover Sport', 'Range Rover Velar', 'Defender']
-    }
-    for brand in car_brands:
-        # models.CarBrand(name=brand).save()
-        brand_pk = models.CarBrand.objects.filter(name=brand).get()
-        # for model in car_brands[brand]:
-        #     models.CarModels(name=model, brand_id=brand_pk).save()
-    data = models.CarModels.objects.all().values()
-    return Response(data=data, status=status.HTTP_200_OK)
+    query = models.Media.objects.values_list('car_id', 'image_id__image')
+
+    data = {}
+
+    current_site = get_current_site(request)
+    for car_id, image_id__image in query:
+        absolute_url = settings.MEDIA_URL + str(image_id__image)
+        if car_id in data:
+            data[car_id].append('http://'+current_site.domain+absolute_url)
+        else:
+            data[car_id] = [('http://'+current_site.domain+absolute_url)]
+
+  # data.annotate(images=Value(absolute_urls, output_field=CharField()))
+
+    # car_sections = [
+    #     "Engine Maintenance",
+    #     "Brakes and Suspension",
+    #     "Electrical System",
+    #     "Fluids and Lubrication",
+    #     "Tires and Wheels",
+    #     "Body and Interior",
+    #     "HVAC System"
+    # ]
+    # car_dict = {}
+    # car_dict["Engine Maintenance"] = ["Oil changes", "Filter replacements",
+    #                                   "Spark plug replacements", "Timing belt inspection", "Air intake cleaning"]
+    # car_dict["Brakes and Suspension"] = ["Brake pad replacements", "Rotor replacements",
+    #                                      "Suspension checks", "Wheel bearing inspection", "Shock absorber replacements"]
+    # car_dict["Electrical System"] = ["Battery health check", "Alternator replacement",
+    #                                  "Wiring inspection", "Starter motor replacement", "Fuse box inspection"]
+    # car_dict["Fluids and Lubrication"] = ["Coolant level check", "Transmission fluid replacement",
+    #                                       "Power steering fluid top-up", "Brake fluid flush", "Windshield washer fluid refill"]
+    # car_dict["Tires and Wheels"] = ["Tire pressure maintenance", "Tire rotation",
+    #                                 "Wheel alignment", "Tire tread depth check", "Wheel balancing"]
+    # car_dict["Body and Interior"] = ["Car washing", "Interior cleaning",
+    #                                  "Cosmetic repairs", "Seat upholstery cleaning", "Dashboard polishing"]
+    # car_dict["HVAC System"] = ["Filter replacements", "Refrigerant level check",
+    #                            "System functionality test", "Heater core inspection", "A/C compressor replacement"]
+    # for kind in car_dict:
+    #     pk = models.MainSection.objects.filter(name=kind)
+    #     for d in car_dict[kind]:
+    #         models.TechnicalCondition()
+    # data = models.MainSection.objects.all().values()
+    return Response(data={'data': data}, status=status.HTTP_200_OK)
 
 
 class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
@@ -70,13 +93,66 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
         return Response({}, status=status.HTTP_201_CREATED)
 
 
+'''
+
+def get_images(self):
+        data = models.Media.objects.filter(car_id__user_id__email='admin@g.com').values_list('car_id', 'image_id__image')
+        images_dict = {}
+        current_site = get_current_site(self.request)
+        for car_id, image_path in data:
+            absolute_url = settings.MEDIA_URL + str(image_path)
+            image_url = 'http://' + current_site.domain + absolute_url
+            if car_id in images_dict:
+                images_dict[car_id].append(image_url)
+            else:
+                images_dict[car_id] = [image_url]
+        return images_dict
+
+def list(self, request, *args, **kwargs):
+    images_dict = self.get_images()
+    queryset = self.get_queryset()
+
+    serialized_data = []
+    for car in queryset:
+        serialized_car = self.serializer_class(car).data
+        car_id = serialized_car['id']
+        if car_id in images_dict:
+            serialized_car['images'] = images_dict[car_id]
+        serialized_data.append(serialized_car)
+
+    return Response(serialized_data)
+'''
+
+
 class Cars(generics.ListCreateAPIView):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+
+    def get_images(self, request):
+        # data = models.Media.objects.filter(
+        #     car_id__user_id__email='admin@g.com').values_list('image_id__image', flat=True)
+        query = models.Media.objects.filter(
+            car_id__user_id__email='admin@g.com').values_list('car_id', 'image_id__image')
+
+        data = {}
+
+        current_site = get_current_site(request)
+        for car_id, image_id__image in query:
+            absolute_url = settings.MEDIA_URL + str(image_id__image)
+            if car_id in data:
+                data[car_id].append('http://'+current_site.domain+absolute_url)
+            else:
+                data[car_id] = [('http://'+current_site.domain+absolute_url)]
+
+        return data
 
     def list(self, request, *args, **kwargs):
-        queryset = models.Car.objects.filter(user_id__email=request.user)
+        # queryset = models.Car.objects.filter(user_id__email=request.user)
+        images = self.get_images(request)
+        queryset = models.Car.objects.filter(
+            user_id__email='admin@g.com')  # .annotate(images=Value(images, output_field=CharField()))
+
         # queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -84,21 +160,40 @@ class Cars(generics.ListCreateAPIView):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
+        # for car in serializer.data:
+        for car in serializer.data:
+            if car['id'] in images:
+                car['images'] = images[car['id']]
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
 
-        request.data['user_id'] = request.user.pk
-        # request.data['user_id']='ee@gg.com'
-        print(request.data)
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        # except Exception as e:
-        #     print(f'Error in Cars.create  {str(e)}')
-        #     return Response({'message':'server Error'},status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            request.data['user_id'] = request.user.pk
+            # request.data['user_id']='ee@gg.com'
+            # print(request.data['121'])
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            print(serializer.instance.pk)
+
+            if request.FILES:
+                uploaded_files = request.FILES.getlist('file[]')
+
+            for uploaded_file in uploaded_files:
+                print(uploaded_file)
+                image = models.Images(image=uploaded_file)
+                image.save()
+                media_serializer = serializers.MediaSerializer(data={'car_id': serializer.instance.pk,
+                                                                     'image_id': image.pk, 'kind': 'image'})
+                media_serializer.is_valid(raise_exception=True)
+                media_serializer.save()
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        except Exception as e:
+            print(f'Error in Cars.create  {str(e)}')
+            return Response({'message': 'server Error'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class Car(generics.RetrieveUpdateDestroyAPIView):
@@ -153,3 +248,8 @@ class CarModel(generics.ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class MainSection(generics.ListAPIView):
+    queryset = models.MainSection.objects.all()
+    serializer_class = serializers.MainSectionSerializer

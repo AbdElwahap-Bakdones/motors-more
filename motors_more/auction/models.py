@@ -50,13 +50,16 @@ class Company(models.Model):
 class CarBrand(models.Model):
     name = models.CharField(max_length=150)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class CarModels(models.Model):
     name = models.CharField(max_length=150)
     brand_id = models.ForeignKey(CarBrand, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class Car(models.Model):
@@ -105,7 +108,7 @@ class Videos(models.Model):
 
 
 class Images(models.Model):
-    image = models.ImageField()
+    image = models.ImageField(upload_to='cars_images')
 
 
 class Media(models.Model):
@@ -157,6 +160,9 @@ class AutoSold(models.Model):
 
 class MainSection(models.Model):
     name = models.CharField(max_length=150)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class TechnicalCondition(models.Model):

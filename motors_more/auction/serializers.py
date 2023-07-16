@@ -36,16 +36,23 @@ class CarModelSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class TechnicalConditionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TechnicalCondition
+        fields = '__all__'
+
+
 class CarSerializer(serializers.ModelSerializer):
     user = UserCreateSerializer(source='user_id', read_only=True)
     images = serializers.ListField(read_only=True)
     car_model = serializers.CharField(source='car_models', read_only=True)
-    car_brand = serializers.CharField(source='car_models__name', read_only=True)
+    price = serializers.CharField(read_only=True)
 
     class Meta:
         model = models.Car
-        fields = ['id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title', 'engine_type',
-                  'gear_type', 'cylinders', 'notes', 'price', 'location', 'car_models', 'car_model', 'car_brand', 'images']
+        fields = ['id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title',
+                  'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location',
+                  'car_model', 'car_models', 'images', 'engine_capacity', 'damage']
 
 
 class CountrySerializer(serializers.ModelSerializer):

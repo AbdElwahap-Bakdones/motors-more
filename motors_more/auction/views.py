@@ -14,6 +14,9 @@ from django.db.models import Value, CharField, Field
 
 @api_view(['GET', 'POST'])
 def test(request):
+    data = models.Car.objects.select_related(
+        'car_models__brand_id').filter(user_id__email='admin@g.com').values()
+
     # car_sections = [
     #     "Engine Maintenance",
     #     "Brakes and Suspension",
@@ -23,28 +26,28 @@ def test(request):
     #     "Body and Interior",
     #     "HVAC System"
     # ]
-    car_dict = {}
-    car_dict["Engine Maintenance"] = ["Oil changes", "Filter replacements",
-                                      "Spark plug replacements", "Timing belt inspection", "Air intake cleaning"]
-    car_dict["Brakes and Suspension"] = ["Brake pad replacements", "Rotor replacements",
-                                         "Suspension checks", "Wheel bearing inspection", "Shock absorber replacements"]
-    car_dict["Electrical System"] = ["Battery health check", "Alternator replacement",
-                                     "Wiring inspection", "Starter motor replacement", "Fuse box inspection"]
-    car_dict["Fluids and Lubrication"] = ["Coolant level check", "Transmission fluid replacement",
-                                          "Power steering fluid top-up", "Brake fluid flush", "Windshield washer fluid refill"]
-    car_dict["Tires and Wheels"] = ["Tire pressure maintenance", "Tire rotation",
-                                    "Wheel alignment", "Tire tread depth check", "Wheel balancing"]
-    car_dict["Body and Interior"] = ["Car washing", "Interior cleaning",
-                                     "Cosmetic repairs", "Seat upholstery cleaning", "Dashboard polishing"]
-    car_dict["HVAC System"] = ["Filter replacements", "Refrigerant level check",
-                               "System functionality test", "Heater core inspection", "A/C compressor replacement"]
+    # car_dict = {}
+    # car_dict["Engine Maintenance"] = ["Oil changes", "Filter replacements",
+    #                                   "Spark plug replacements", "Timing belt inspection", "Air intake cleaning"]
+    # car_dict["Brakes and Suspension"] = ["Brake pad replacements", "Rotor replacements",
+    #                                      "Suspension checks", "Wheel bearing inspection", "Shock absorber replacements"]
+    # car_dict["Electrical System"] = ["Battery health check", "Alternator replacement",
+    #                                  "Wiring inspection", "Starter motor replacement", "Fuse box inspection"]
+    # car_dict["Fluids and Lubrication"] = ["Coolant level check", "Transmission fluid replacement",
+    #                                       "Power steering fluid top-up", "Brake fluid flush", "Windshield washer fluid refill"]
+    # car_dict["Tires and Wheels"] = ["Tire pressure maintenance", "Tire rotation",
+    #                                 "Wheel alignment", "Tire tread depth check", "Wheel balancing"]
+    # car_dict["Body and Interior"] = ["Car washing", "Interior cleaning",
+    #                                  "Cosmetic repairs", "Seat upholstery cleaning", "Dashboard polishing"]
+    # car_dict["HVAC System"] = ["Filter replacements", "Refrigerant level check",
+    #                            "System functionality test", "Heater core inspection", "A/C compressor replacement"]
     # for kind in car_dict:
     #     models.MainSection(name=kind).save()
     #     # pk = models.MainSection.objects.filter(name=kind)
     #     # for d in car_dict[kind]:
     #     #     models.TechnicalCondition()
     # data = models.MainSection.objects.all().values()
-    return Response(data={'data': {}}, status=status.HTTP_200_OK)
+    return Response(data={'data': data}, status=status.HTTP_200_OK)
 
 
 class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
@@ -58,7 +61,6 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
         user_serializer = serializers.UserCreateSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
         user_serializer.save()
-        print('done 11')
         return models.User.objects.get(username=user_data['username']).pk
 
     def create(self, request, *args, **kwargs):
@@ -67,48 +69,12 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
         client_data['gender'] = dict(request.data).pop('gender')
 
         client_data['user_id'] = self.create_user(request)
-        print(client_data)
         client_serializer = self.get_serializer(data=client_data)
-        print(client_serializer.is_valid(raise_exception=True))
         client_serializer.is_valid(raise_exception=True)
-        print('done 22')
         self.perform_create(client_serializer)
-        print('done 33')
         headers = self.get_success_headers(client_serializer.data)
-        print('done 44')
         return Response(client_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response({}, status=status.HTTP_201_CREATED)
-
-
-'''
-
-def get_images(self):
-        data = models.Media.objects.filter(car_id__user_id__email='admin@g.com').values_list('car_id', 'image_id__image')
-        images_dict = {}
-        current_site = get_current_site(self.request)
-        for car_id, image_path in data:
-            absolute_url = settings.MEDIA_URL + str(image_path)
-            image_url = 'http://' + current_site.domain + absolute_url
-            if car_id in images_dict:
-                images_dict[car_id].append(image_url)
-            else:
-                images_dict[car_id] = [image_url]
-        return images_dict
-
-def list(self, request, *args, **kwargs):
-    images_dict = self.get_images()
-    queryset = self.get_queryset()
-
-    serialized_data = []
-    for car in queryset:
-        serialized_car = self.serializer_class(car).data
-        car_id = serialized_car['id']
-        if car_id in images_dict:
-            serialized_car['images'] = images_dict[car_id]
-        serialized_data.append(serialized_car)
-
-    return Response(serialized_data)
-'''
 
 
 class Cars(generics.ListCreateAPIView):
@@ -136,9 +102,8 @@ class Cars(generics.ListCreateAPIView):
 
     def list(self, request, *args, **kwargs):
         # queryset = models.Car.objects.filter(user_id__email=request.user)
+        queryset = models.Car.objects.filter(user_id__email='admin@g.com')
         images = self.get_images(request)
-        queryset = models.Car.objects.filter(
-            user_id__email='admin@g.com')  # .annotate(images=Value(images, output_field=CharField()))
 
         # queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
@@ -158,23 +123,33 @@ class Cars(generics.ListCreateAPIView):
         try:
             request.data['user_id'] = request.user.pk
             # request.data['user_id']='ee@gg.com'
-            # print(request.data['121'])
+            print(request.data)
+            technical_condition = request.data.pop('technical_condition')
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
-            print(serializer.instance.pk)
+            car_instance = serializer.instance
+            print(car_instance)
+
+            technical_condition['car_id'] = car_instance.pk
+            print(technical_condition)
+            print('000000000000000000000000')
+
+            technical_serializer = serializers.TechnicalConditionSerializer(data=technical_condition)
+            technical_serializer.is_valid(raise_exception=True)
+            technical_serializer.save()
 
             if request.FILES:
                 uploaded_files = request.FILES.getlist('file[]')
 
-            for uploaded_file in uploaded_files:
-                print(uploaded_file)
-                image = models.Images(image=uploaded_file)
-                image.save()
-                media_serializer = serializers.MediaSerializer(data={'car_id': serializer.instance.pk,
-                                                                     'image_id': image.pk, 'kind': 'image'})
-                media_serializer.is_valid(raise_exception=True)
-                media_serializer.save()
+                for uploaded_file in uploaded_files:
+                    image = models.Images(image=uploaded_file)
+                    image.save()
+                    media_serializer = serializers.MediaSerializer(data={'car_id': car_instance.pk,
+                                                                         'image_id': image.pk, 'kind': 'image'})
+                    media_serializer.is_valid(raise_exception=True)
+                    media_serializer.save()
+
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except Exception as e:

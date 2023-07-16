@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Q
-
+import json
 # Create your models here.
 
 
@@ -88,9 +88,17 @@ class Car(models.Model):
     gear_type = models.CharField(choices=gear_art, max_length=150)
     cylinders = models.CharField(max_length=50)
     notes = models.TextField(null=True)
-    price = models.CharField(max_length=50)
+    price = models.CharField(max_length=50, default='0')
+    engine_capacity = models.CharField(max_length=50, default='2.0-liter engine')
+    damage = models.CharField(max_length=250, null=True)
     location = models.ForeignKey(Province, on_delete=models.PROTECT)
     car_models = models.ForeignKey(CarModels, on_delete=models.CASCADE, null=True)
+
+    # def set_damage(self, data):
+    #     self.damage = json.dumps(data)
+
+    # def get_damage(self):
+    #     return json.loads(self.damage)
 
     def __str__(self):
         return self.user_id.email

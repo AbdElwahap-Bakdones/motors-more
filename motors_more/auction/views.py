@@ -14,8 +14,8 @@ from django.db.models import Value, CharField, Field
 
 @api_view(['GET', 'POST'])
 def test(request):
-    data = models.Car.objects.select_related(
-        'car_models__brand_id').filter(user_id__email='admin@g.com').values()
+    data = models.Media.objects.filter(
+        car_id__user_id__email='admin@g.com').values_list('car_id', 'image_id__image')
 
     # car_sections = [
     #     "Engine Maintenance",
@@ -121,23 +121,23 @@ class Cars(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
 
         try:
+            car_instance = 0
             request.data['user_id'] = request.user.pk
             # request.data['user_id']='ee@gg.com'
-            print(request.data)
             technical_condition = request.data.pop('technical_condition')
+            print(technical_condition)
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             car_instance = serializer.instance
             print(car_instance)
 
-            technical_condition['car_id'] = car_instance.pk
-            print(technical_condition)
-            print('000000000000000000000000')
-
-            technical_serializer = serializers.TechnicalConditionSerializer(data=technical_condition)
-            technical_serializer.is_valid(raise_exception=True)
-            technical_serializer.save()
+            for item in technical_condition:
+                technical_serializer = serializers.TechnicalConditionSerializer(
+                    data={'main_section_id': item['main_section_id'],
+                          'car_id': car_instance.pk, 'status': item['status']})
+                technical_serializer.is_valid(raise_exception=True)
+                technical_serializer.save()
 
             if request.FILES:
                 uploaded_files = request.FILES.getlist('file[]')
@@ -154,6 +154,8 @@ class Cars(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except Exception as e:
             print(f'Error in Cars.create  {str(e)}')
+            if car_instance != 0:
+                models.Car.objects.filter(pk=car_instance.pk).delete()
             return Response({'message': 'server Error'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

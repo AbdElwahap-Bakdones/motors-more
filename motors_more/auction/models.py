@@ -101,7 +101,7 @@ class Car(models.Model):
     #     return json.loads(self.damage)
 
     def __str__(self):
-        return self.user_id.email
+        return str(self.pk)
 
 
 class CarOption(models.Model):
@@ -178,6 +178,9 @@ class TechnicalCondition(models.Model):
     car_id = models.ForeignKey(Car, on_delete=models.CASCADE)
     status_art = [('Y', 'Yes'), ('N', 'No'), ('UK', 'UnKnown')]
     status = models.CharField(choices=status_art, max_length=50)
+
+    def __str__(self) -> str:
+        return str(self.pk)
 
 
 class AboutUs(models.Model):

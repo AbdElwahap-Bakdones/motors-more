@@ -176,7 +176,7 @@ class MainSection(models.Model):
 class TechnicalCondition(models.Model):
     main_section_id = models.ForeignKey(MainSection, on_delete=models.CASCADE)
     car_id = models.ForeignKey(Car, on_delete=models.CASCADE)
-    status_art = [('Y', 'Yes'), ('N', 'No'), ('UK', 'UnKnown')]
+    status_art = [('Y', 'Very Good'), ('x', 'Good'), ('N', 'Bad'), ('UK', 'UnKnown')]
     status = models.CharField(choices=status_art, max_length=50)
 
     def __str__(self) -> str:

@@ -77,6 +77,19 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
         return Response({}, status=status.HTTP_201_CREATED)
 
 
+@api_view(['POST'])
+def upload_images(request):
+    if request.FILES:
+        uploaded_files = request.FILES.getlist('file[]')
+        image_IDs = []
+        for uploaded_file in uploaded_files:
+            image = models.Images(image=uploaded_file)
+            image.save()
+            image_IDs.append(image.pk)
+        return Response(data={'message': 'ok', 'image_IDs': image_IDs}, status=status.HTTP_201_CREATED)
+    return Response(data={'message': 'bad request'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class Cars(generics.ListCreateAPIView):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
@@ -124,6 +137,8 @@ class Cars(generics.ListCreateAPIView):
             car_instance = 0
             request.data['user_id'] = request.user.pk
             # request.data['user_id']='ee@gg.com'
+            print(request.data)
+            images = request.data.pop('images')
             technical_condition = request.data.pop('technical_condition')
             print(technical_condition)
             serializer = self.get_serializer(data=request.data)
@@ -139,16 +154,11 @@ class Cars(generics.ListCreateAPIView):
                 technical_serializer.is_valid(raise_exception=True)
                 technical_serializer.save()
 
-            if request.FILES:
-                uploaded_files = request.FILES.getlist('file[]')
-
-                for uploaded_file in uploaded_files:
-                    image = models.Images(image=uploaded_file)
-                    image.save()
-                    media_serializer = serializers.MediaSerializer(data={'car_id': car_instance.pk,
-                                                                         'image_id': image.pk, 'kind': 'image'})
-                    media_serializer.is_valid(raise_exception=True)
-                    media_serializer.save()
+            for image_pk in images:
+                media_serializer = serializers.MediaSerializer(data={'car_id': car_instance.pk,
+                                                                     'image_id': image_pk, 'kind': 'image'})
+                media_serializer.is_valid(raise_exception=True)
+                media_serializer.save()
 
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

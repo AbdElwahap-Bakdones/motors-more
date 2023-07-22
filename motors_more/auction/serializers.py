@@ -5,7 +5,7 @@ from . import models
 
 class UserCreateSerializer(DjoserUserCreateSerializer):
     class Meta(DjoserUserCreateSerializer.Meta):
-        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'phone', 'location',]
+        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'phone', 'location', 'user_kind']
 
 
 class ClientCreateSerializer(serializers.ModelSerializer):
@@ -52,7 +52,7 @@ class CarSerializer(serializers.ModelSerializer):
         model = models.Car
         fields = ['id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title',
                   'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location',
-                  'car_model', 'car_models', 'engine_capacity', 'damage']
+                  'car_model', 'car_models', 'engine_capacity', 'damage', 'drive_type']
 
 
 class CountrySerializer(serializers.ModelSerializer):

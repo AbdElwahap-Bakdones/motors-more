@@ -76,6 +76,7 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
     def create_user(self, request):
         user_data = request.data
         user_data['username'] = request.data['first_name'] + request.data['last_name']
+        user_data['user_kind'] = 'U'
         user_serializer = serializers.UserCreateSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
         user_serializer.save()
@@ -98,7 +99,7 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
 class Cars(generics.ListCreateAPIView):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_images(self, request):
         # data = models.Media.objects.filter(
@@ -168,7 +169,7 @@ class Cars(generics.ListCreateAPIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class Car(generics.RetrieveUpdateDestroyAPIView):
+class Car(generics.RetrieveUpdateDestroyAPIView, generics.DestroyAPIView):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
     permission_classes = [IsAuthenticated]

@@ -25,8 +25,10 @@ class User(AbstractUser):
     email = models.EmailField(('email address'), unique=True)
     phone = models.CharField(("phone"), max_length=50, null=True)
     location = models.ForeignKey(Province, on_delete=models.PROTECT, null=True)
+    kind_art = [('U', 'User'), ('C', 'Company'), ('A', 'Admin')]
+    user_kind = models.CharField(choices=kind_art, default='User', max_length=50)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'phone',]
+    REQUIRED_FIELDS = ['username', 'user_kind']
 
     def __str__(self):
         return self.email
@@ -91,6 +93,8 @@ class Car(models.Model):
     price = models.CharField(max_length=50, default='0')
     engine_capacity = models.CharField(max_length=50, default='2.0-liter engine')
     damage = models.CharField(max_length=250, null=True)
+    drive_type_art = [('4WD', '4WD'), ('AWD', 'AWD'), ('FWD', 'FWD'), ('RWD', 'RWD')]
+    drive_type = models.CharField(choices=drive_type_art, default='4WD', max_length=50)
     location = models.ForeignKey(Province, on_delete=models.PROTECT)
     car_models = models.ForeignKey(CarModels, on_delete=models.CASCADE, null=True)
 

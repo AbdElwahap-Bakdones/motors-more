@@ -76,7 +76,7 @@ class CreateClientMixin(generics.CreateAPIView, generics.ListAPIView):
     def create_user(self, request):
         user_data = request.data
         user_data['username'] = request.data['first_name'] + request.data['last_name']
-        user_data['user_kind'] = 'U'
+        user_data['user_kind'] = 'User'
         user_serializer = serializers.UserCreateSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
         user_serializer.save()

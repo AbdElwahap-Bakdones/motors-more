@@ -231,7 +231,7 @@ class RequestAuction(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         data = request.data
         data['user_id'] = request.user.pk
-        data['user_id'] = 'pending'
+        data['status'] = 'pending'
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

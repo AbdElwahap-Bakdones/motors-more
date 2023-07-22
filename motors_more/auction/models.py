@@ -86,7 +86,7 @@ class Car(models.Model):
         ('BEV', 'battery electric vehicle'),
         ('HEV', 'Hybrid electric vehicle')]
     engine_type = models.CharField(choices=engine_art, max_length=250)
-    gear_art = [('Manual', 'Manual'), ('Automatic', 'Automatic')]
+    gear_art = [('Manual', 'Manual'), ('Automatic', 'Automatic'), ('Easytronic', 'Easytronic')]
     gear_type = models.CharField(choices=gear_art, max_length=150)
     cylinders = models.CharField(max_length=50)
     notes = models.TextField(null=True)

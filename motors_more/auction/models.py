@@ -25,7 +25,7 @@ class User(AbstractUser):
     email = models.EmailField(('email address'), unique=True)
     phone = models.CharField(("phone"), max_length=50, null=True)
     location = models.ForeignKey(Province, on_delete=models.PROTECT, null=True)
-    kind_art = [('U', 'User'), ('C', 'Company'), ('A', 'Admin')]
+    kind_art = [('User', 'User'), ('Company', 'Company'), ('Admin', 'Admin')]
     user_kind = models.CharField(choices=kind_art, default='User', max_length=50)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'user_kind']

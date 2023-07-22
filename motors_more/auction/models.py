@@ -146,6 +146,12 @@ class Auction(models.Model):
     notebook_conditions = models.FloatField()
 
 
+class RequestAuction(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    car_id = models.ForeignKey(Car, on_delete=models.CASCADE)
+    status = models.CharField(max_length=50)
+
+
 class UserInAuction(models.Model):
     auction_id = models.ForeignKey(Auction, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)

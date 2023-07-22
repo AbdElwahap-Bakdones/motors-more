@@ -55,6 +55,12 @@ class CarSerializer(serializers.ModelSerializer):
                   'car_model', 'car_models', 'engine_capacity', 'damage', 'drive_type']
 
 
+class RequestAuctionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.RequestAuction
+        fields = '__all__'
+
+
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Country

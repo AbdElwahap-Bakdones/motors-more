@@ -223,6 +223,22 @@ class CarModel(generics.ListAPIView):
         return Response(serializer.data)
 
 
+class RequestAuction(generics.ListCreateAPIView):
+    queryset = models.RequestAuction.objects.all()
+    serializer_class = serializers.RequestAuctionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        data['user_id'] = request.user.pk
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return super().create(request, *args, **kwargs)
+
+
 class MainSection(generics.ListAPIView):
     queryset = models.MainSection.objects.all()
     serializer_class = serializers.MainSectionSerializer

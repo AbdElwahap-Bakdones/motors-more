@@ -44,7 +44,7 @@ class TechnicalConditionSerializer(serializers.ModelSerializer):
 
 class CarSerializer(serializers.ModelSerializer):
     user = UserCreateSerializer(source='user_id', read_only=True)
-    images = serializers.ListField(read_only=True)
+    # images = serializers.ListField(read_only=True)
     car_model = serializers.CharField(source='car_models', read_only=True)
     price = serializers.CharField(read_only=True)
 
@@ -52,7 +52,7 @@ class CarSerializer(serializers.ModelSerializer):
         model = models.Car
         fields = ['id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title',
                   'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location',
-                  'car_model', 'car_models', 'images', 'engine_capacity', 'damage']
+                  'car_model', 'car_models', 'engine_capacity', 'damage']
 
 
 class CountrySerializer(serializers.ModelSerializer):

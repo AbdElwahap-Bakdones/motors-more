@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Request Auctions</title>
+    <style>
+        body {
+            display: grid;
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            margin-right: 10px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        .btn.pending {
+            background-color: #007BFF;
+        }
+
+        .btn.accepted {
+            background-color: #28A745;
+        }
+
+        .btn.rejected {
+            background-color: #DC3545;
+        }
+
+        .btn.add {
+            background-color: #d6dc35;
+        }
+
+        .btn.added {
+            background-color: #DC3545;
+        }
+
+        .btn.create {
+            text-align: center;
+            align-items: center;
+            width: 50vh;
+            background-color: #007BFF;
+
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Auction Requests </h1>
+    <div>
+        <button class="btn pending" onclick="filterTable('pending')">Pending</button>
+        <button class="btn accepted" onclick="filterTable('accepted')">Accepted</button>
+        <button class="btn rejected" onclick="filterTable('rejected')">Rejected</button>
+    </div>
+    <br>
+    <table id="auctionsTable">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Car ID</th>
+                <th>Status</th>
+                <th>Add to Auction</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for auction in auctions %}
+            <tr>
+                <td>{{ auction.user_id }}</td>
+                <td>{{ auction.car_id }}</td>
+                <td>{{ auction.status }}</td>
+                <td>
+                    {% if auction.status == 'pending' %}
+                    <button onclick="AcceptAuction(this, '{{ auction.car_id }}')" class="btn add">Add</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <button class="btn create">create</button>
+
+    <script>
+        function filterTable(status) {
+            var table, tr, td, i, txtValue;
+            table = document.getElementById("auctionsTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 1; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[2]; // Index 2 is the status column
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.trim() === status) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+        var cars = new Set(); // Create an empty Set
+        function AcceptAuction(button, car_id) {
+            if (cars.has(car_id)) {
+                // Car already in the Set, remove it and revert button style
+                cars.delete(car_id);
+                button.innerText = "Add";
+                button.classList.remove("added");
+            } else {
+                // Car not in the Set, add it and change button style
+                cars.add(car_id);
+                button.innerText = "Remove";
+                console.log(button.classList.add('added'))
+                button.classList.add("added");
+            }
+            console.log(cars);
+        }
+    </script>
+</body>
+
+</html>

@@ -105,7 +105,7 @@ class Car(models.Model):
     #     return json.loads(self.damage)
 
     def __str__(self):
-        return str(self.pk)
+        return str(self.user_id.email)
 
 
 class CarOption(models.Model):
@@ -149,6 +149,7 @@ class Auction(models.Model):
 class RequestAuction(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     car_id = models.ForeignKey(Car, on_delete=models.CASCADE)
+    status_kind = [('pending', 'pending'), ('accepted', 'accepted'), ('rejected', 'rejected')]
     status = models.CharField(max_length=50)
 
 

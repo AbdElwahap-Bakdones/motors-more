@@ -56,9 +56,11 @@ class CarSerializer(serializers.ModelSerializer):
 
 
 class RequestAuctionSerializer(serializers.ModelSerializer):
+    car_info = CarSerializer(source='car_id', read_only=True)
+
     class Meta:
         model = models.RequestAuction
-        fields = '__all__'
+        fields = ['id', 'user_id', 'car_id',  'car_info', 'status']
 
 
 class CountrySerializer(serializers.ModelSerializer):

@@ -18,6 +18,7 @@ urlpatterns = [
     path('car_model/<int:brand_id>', views.CarModel.as_view()),
     path('main_section', views.MainSection.as_view()),
     path('request_auction', views.RequestAuction.as_view()),
+    path('auctions/', views.view_auctions_request, name='view_auctions'),
     path('upload_images', views.upload_images),
     path('test', views.test),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -50,6 +50,33 @@ def test(request):
     return Response(data={'data': data}, status=status.HTTP_200_OK)
 
 
+def view_auctions_request(request):
+    auctions = models.RequestAuction.objects.all()
+    return render(request, 'request_auction.html', {'auctions': auctions})
+
+
+def get_images(request, user_email: str, car_id=0):
+
+    if car_id > 0:
+        query = models.Media.objects.filter(
+            car_id__user_id__email=user_email, car_id=car_id).values_list('car_id', 'image_id__image')
+    else:
+        query = models.Media.objects.filter(
+            car_id__user_id__email=user_email).values_list('car_id', 'image_id__image')
+
+    data = {}
+
+    current_site = get_current_site(request)
+    for car_id, image_id__image in query:
+        absolute_url = settings.MEDIA_URL + str(image_id__image)
+        if car_id in data:
+            data[car_id].append('http://'+current_site.domain+absolute_url)
+        else:
+            data[car_id] = [('http://'+current_site.domain+absolute_url)]
+
+    return data
+
+
 @api_view(['POST'])
 def upload_images(request):
     if request.FILES:
@@ -101,28 +128,10 @@ class Cars(generics.ListCreateAPIView):
     serializer_class = serializers.CarSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_images(self, request):
-        # data = models.Media.objects.filter(
-        #     car_id__user_id__email='admin@g.com').values_list('image_id__image', flat=True)
-        query = models.Media.objects.filter(
-            car_id__user_id__email='admin@g.com').values_list('car_id', 'image_id__image')
-
-        data = {}
-
-        current_site = get_current_site(request)
-        for car_id, image_id__image in query:
-            absolute_url = settings.MEDIA_URL + str(image_id__image)
-            if car_id in data:
-                data[car_id].append('http://'+current_site.domain+absolute_url)
-            else:
-                data[car_id] = [('http://'+current_site.domain+absolute_url)]
-
-        return data
-
     def list(self, request, *args, **kwargs):
         # queryset = models.Car.objects.filter(user_id__email=request.user)
         queryset = models.Car.objects.filter(user_id__email='admin@g.com')
-        images = self.get_images(request)
+        images = get_images(request=request, user_email=request.user.email)
 
         # queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
@@ -175,9 +184,13 @@ class Car(generics.RetrieveUpdateDestroyAPIView, generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def retrieve(self, request, pk, *args, **kwargs):
-        print('retrive')
-        print(request.user)
-        return super().retrieve(request, pk, *args, **kwargs)
+        images = get_images(request=request, user_email=request.user.email, car_id=pk)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        data['images'] = images[pk]
+        print(data)
+        return Response(data)
 
 
 class Country(generics.ListAPIView):
@@ -229,6 +242,12 @@ class RequestAuction(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
+        if not models.Car.objects.filter(pk=request.data['car_id'], user_id=request.user.pk).exists():
+            return Response({'message': 'car_id not found'}, status=status.HTTP_404_NOT_FOUND)
+        if models.RequestAuction.objects.filter(
+                user_id=request.user, user_id__user_kind='User', status='pending').exists():
+            return Response({'message': 'you already have pending request'}, status=status.HTTP_400_BAD_REQUEST)
+
         data = request.data
         data['user_id'] = request.user.pk
         data['status'] = 'pending'
@@ -237,7 +256,17 @@ class RequestAuction(generics.ListCreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        return super().create(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        queryset = models.RequestAuction.objects.filter(user_id=request.user.pk)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class MainSection(generics.ListAPIView):

@@ -272,3 +272,8 @@ class RequestAuction(generics.ListCreateAPIView):
 class MainSection(generics.ListAPIView):
     queryset = models.MainSection.objects.all()
     serializer_class = serializers.MainSectionSerializer
+
+
+class Auction(generics.ListAPIView):
+    queryset = models.Auction.objects.all()
+    serializer_class = serializers.AuctionSerializer

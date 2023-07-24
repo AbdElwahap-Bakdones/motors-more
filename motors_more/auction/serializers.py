@@ -93,3 +93,9 @@ class MainSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MainSection
         fields = '__all__'
+
+
+class AuctionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Auction
+        fields = '__all__'

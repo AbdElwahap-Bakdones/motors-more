@@ -85,6 +85,18 @@
             background-color: #007BFF;
 
         }
+
+        input[type="date"] {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Optional: Customize the appearance of the date picker popup */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
     </style>
 </head>
 
@@ -115,7 +127,7 @@
                 <td>{{ auction.status }}</td>
                 <td>
                     {% if auction.status == 'pending' %}
-                    <button onclick="AcceptAuction(this, '{{ auction.car_id }}')" class="btn add">Add</button>
+                    <button onclick="AcceptAuction(this, '{{ auction.car_id.pk }}')" class="btn add">Add</button>
                     {%else%}
                     -
                     {% endif %}
@@ -127,6 +139,9 @@
     </table>
     <br>
     <button class="btn create">create</button>
+    <label for="datePicker">Select a date:</label>
+    <input type="date" id="datePicker" name="selectedDate">
+
 
     <script>
         function filterTable(status) {
@@ -157,7 +172,6 @@
                 // Car not in the Set, add it and change button style
                 cars.add(car_id);
                 button.innerText = "Remove";
-                console.log(button.classList.add('added'))
                 button.classList.add("added");
             }
             console.log(cars);

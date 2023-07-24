@@ -135,7 +135,7 @@
             tr = table.getElementsByTagName("tr");
 
             for (i = 1; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[2]; // Index 2 is the status column
+                td = tr[i].getElementsByTagName("td")[3]; // Index 2 is the status column
                 if (td) {
                     txtValue = td.textContent || td.innerText;
                     if (txtValue.trim() === status) {

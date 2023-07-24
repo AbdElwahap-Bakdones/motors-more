@@ -101,6 +101,7 @@
             <tr>
                 <th>User ID</th>
                 <th>Car ID</th>
+                <th>User kind</th>
                 <th>Status</th>
                 <th>Add to Auction</th>
             </tr>
@@ -110,11 +111,15 @@
             <tr>
                 <td>{{ auction.user_id }}</td>
                 <td>{{ auction.car_id }}</td>
+                <td>{{ auction.user_id.user_kind}}</td>
                 <td>{{ auction.status }}</td>
                 <td>
                     {% if auction.status == 'pending' %}
                     <button onclick="AcceptAuction(this, '{{ auction.car_id }}')" class="btn add">Add</button>
+                    {%else%}
+                    -
                     {% endif %}
+
                 </td>
             </tr>
             {% endfor %}

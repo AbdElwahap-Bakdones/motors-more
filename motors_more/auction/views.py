@@ -5,11 +5,12 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
 import copy
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Value, CharField, Field
+from rest_framework.parsers import JSONParser
 
 
 @api_view(['GET', 'POST'])
@@ -50,9 +51,25 @@ def test(request):
     return Response(data={'data': data}, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def add_car_to_auction(request):
+    cars_id = request.data['cars_id']
+    auction_id = request.data['auction_id']
+    print(cars_id)
+    for car in cars_id:
+        seri = serializers.CarInAuction(data={'car_id': car, 'auction_id': auction_id, 'status': 'for sale'})
+        seri.is_valid(raise_exception=True)
+        seri.save()
+        models.RequestAuction.objects.filter(car_id=car).update(status='accepted')
+
+    return Response({'message': 'ok'}, status=status.HTTP_201_CREATED)
+
+
 def view_auctions_request(request):
-    auctions = models.RequestAuction.objects.all()
-    return render(request, 'request_auction.html', {'auctions': auctions})
+    auctions_request = models.RequestAuction.objects.all()
+    auctions = models.Auction.objects.filter(status__in=['later auction', 'live auction'])
+    return render(request, 'request_auction.html', {'auctions_request': auctions_request, 'auctions': auctions})
 
 
 def get_images(request, user_email: str, car_id=0):
@@ -244,9 +261,13 @@ class RequestAuction(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         if not models.Car.objects.filter(pk=request.data['car_id'], user_id=request.user.pk).exists():
             return Response({'message': 'car_id not found'}, status=status.HTTP_404_NOT_FOUND)
-        if models.RequestAuction.objects.filter(
-                user_id=request.user, user_id__user_kind='User', status='pending').exists():
+        request_obj = models.RequestAuction.objects.filter(
+            user_id=request.user)
+        if request_obj.filter(
+                user_id__user_kind='User', status='pending').exists():
             return Response({'message': 'you already have pending request'}, status=status.HTTP_400_BAD_REQUEST)
+        elif request_obj.filter(car_id=request.data['car_id'], status__in=['pending', 'accepted']).exists():
+            return Response({'message': 'the car alrady in request'}, status=status.HTTP_400_BAD_REQUEST)
 
         data = request.data
         data['user_id'] = request.user.pk
@@ -277,3 +298,16 @@ class MainSection(generics.ListAPIView):
 class Auction(generics.ListAPIView):
     queryset = models.Auction.objects.all()
     serializer_class = serializers.AuctionSerializer
+
+
+class CarInAuction(generics.ListAPIView):
+    serializer_class = serializers.CarInAuction
+
+    def get_queryset(self):
+        print(self.request.query_params)
+        auction_id = self.request.query_params.get('auction_id', None)
+        if auction_id:
+            queryset = models.CarInAuction.objects.filter(auction_id=auction_id)
+        else:
+            queryset = models.CarInAuction.objects.all()
+        return queryset

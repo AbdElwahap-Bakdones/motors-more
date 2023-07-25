@@ -150,7 +150,7 @@ class RequestAuction(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     car_id = models.ForeignKey(Car, on_delete=models.CASCADE)
     status_kind = [('pending', 'pending'), ('accepted', 'accepted'), ('rejected', 'rejected')]
-    status = models.CharField(max_length=50)
+    status = models.CharField(choices=status_kind, max_length=50)
 
 
 class UserInAuction(models.Model):

@@ -81,7 +81,8 @@
         .btn.create {
             text-align: center;
             align-items: center;
-            width: 50vh;
+            width: 25%;
+            size: 55px;
             background-color: #007BFF;
 
         }
@@ -91,11 +92,6 @@
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
-        }
-
-        /* Optional: Customize the appearance of the date picker popup */
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
         }
     </style>
 </head>
@@ -107,8 +103,10 @@
         <button class="btn accepted" onclick="filterTable('accepted')">Accepted</button>
         <button class="btn rejected" onclick="filterTable('rejected')">Rejected</button>
     </div>
-    <br>
     <table id="auctionsTable">
+        <caption>
+            <h1>Cars</h1>
+        </caption>
         <thead>
             <tr>
                 <th>User ID</th>
@@ -119,15 +117,16 @@
             </tr>
         </thead>
         <tbody>
-            {% for auction in auctions %}
+            {% for request_auction in auctions_request%}
             <tr>
-                <td>{{ auction.user_id }}</td>
-                <td>{{ auction.car_id }}</td>
-                <td>{{ auction.user_id.user_kind}}</td>
-                <td>{{ auction.status }}</td>
+                <td>{{ request_auction.user_id }}</td>
+                <td>{{ request_auction.car_id }}</td>
+                <td>{{ request_auction.user_id.user_kind}}</td>
+                <td>{{ request_auction.status }}</td>
                 <td>
-                    {% if auction.status == 'pending' %}
-                    <button onclick="AcceptAuction(this, '{{ auction.car_id.pk }}')" class="btn add">Add</button>
+                    {% if request_auction.status == 'pending' %}
+                    <button onclick="AcceptAuction(this, '{{ request_auction.car_id.pk }}')"
+                        class="btn add">Add</button>
                     {%else%}
                     -
                     {% endif %}
@@ -136,14 +135,60 @@
             </tr>
             {% endfor %}
         </tbody>
+        <br>
     </table>
+
     <br>
-    <button class="btn create">create</button>
-    <label for="datePicker">Select a date:</label>
-    <input type="date" id="datePicker" name="selectedDate">
+    <br>
+    <br>
+
+    <table id="auctionsTable">
+        <caption>
+            <h1>Auctions</h1>
+        </caption>
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>date</th>
+                <th>time</th>
+                <th>status</th>
+                <th>kind</th>
+                <th>notebook_conditions</th>
+                <th>select auction</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for auction in auctions%}
+            <tr>
+                <td>{{auction.id}}</td>
+                <td>{{auction.date}}</td>
+                <td>{{auction.time}}</td>
+                <td>{{auction.status}}</td>
+                <td>{{auction.kind}}</td>
+                <td>{{auction.notebook_conditions}}</td>
+                <td>
+                    <input type="radio" name="selected_auction" value="{{ auction.id }}" id="auction_{{ auction.id }}">
+                </td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+    <br><br><br>
+    <button onclick="AddCarsToAuction()" class=" btn create">Add</button>
 
 
     <script>
+        var selectedAuctionID = null;
+        document.addEventListener("DOMContentLoaded", function () {
+            const radioButtons = document.querySelectorAll('input[name="selected_auction"]');
+
+            radioButtons.forEach(function (radioButton) {
+                radioButton.addEventListener("click", function () {
+                    selectedAuctionID = this.value;
+                    console.log("Selected Auction ID:", selectedAuctionID);
+                });
+            });
+        });
         function filterTable(status) {
             var table, tr, td, i, txtValue;
             table = document.getElementById("auctionsTable");
@@ -175,6 +220,39 @@
                 button.classList.add("added");
             }
             console.log(cars);
+        }
+        function AddCarsToAuction() {
+            if (selectedAuctionID == null) {
+                alert('pleass select auciton')
+                return
+            } if (cars.size == 0) {
+                alert('pleass select cars to add')
+                return
+            }
+
+            const selectedCarsArray = Array.from(cars);
+            const requestData = {
+                auction_id: selectedAuctionID,
+                cars_id: selectedCarsArray,
+            };
+            fetch('/add_cars_to_auction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}', // Use the CSRF token from Django
+                },
+                body: JSON.stringify(requestData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    location.reload();
+                    // Perform any additional actions or updates after the request is successful
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while adding cars to auction');
+                });
         }
     </script>
 </body>

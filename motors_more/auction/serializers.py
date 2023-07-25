@@ -96,6 +96,18 @@ class MainSectionSerializer(serializers.ModelSerializer):
 
 
 class AuctionSerializer(serializers.ModelSerializer):
+    title = serializers.TimeField(source='time')
+    extendedProps = serializers.SerializerMethodField()
+
+    def get_extendedProps(self, obj):
+        return {'status': obj.status, 'notebook_conditions': obj.notebook_conditions, 'kind': obj.kind}
+
     class Meta:
         model = models.Auction
+        fields = ['id', 'date', 'title', 'extendedProps']
+
+
+class CarInAuction(serializers.ModelSerializer):
+    class Meta:
+        model = models.CarInAuction
         fields = '__all__'

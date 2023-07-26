@@ -48,6 +48,7 @@ class CarSerializer(serializers.ModelSerializer):
     user = UserCreateSerializer(source='user_id', read_only=True)
     images = serializers.SerializerMethodField(read_only=True)
     car_model = serializers.CharField(source='car_models', read_only=True)
+    car_brand = serializers.CharField(source='car_models.brand_id.name', read_only=True)
     price = serializers.CharField(read_only=True)
     province_name = serializers.CharField(source='location.province_name', read_only=True)
     country_name = serializers.CharField(source='location.country_id.country_name', read_only=True)
@@ -56,7 +57,7 @@ class CarSerializer(serializers.ModelSerializer):
         model = models.Car
         fields = ['id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title',
                   'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location', 'province_name',
-                  'country_name', 'car_model', 'car_models', 'engine_capacity', 'damage', 'drive_type', 'images']
+                  'country_name', 'car_model', 'car_models', 'car_brand', 'engine_capacity', 'damage', 'drive_type', 'images']
 
     def get_images(self, obj):
         query = models.Media.objects.filter(car_id=obj.pk).values_list('image_id__image', flat=True)

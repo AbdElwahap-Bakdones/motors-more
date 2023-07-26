@@ -148,7 +148,7 @@ class Cars(generics.ListCreateAPIView):
     def list(self, request, *args, **kwargs):
         # queryset = models.Car.objects.filter(user_id__email=request.user)
         queryset = models.Car.objects.filter(user_id__email='admin@g.com')
-        images = get_images(request=request, user_email=request.user.email)
+        # images = get_images(request=request, user_email=request.user.email)
 
         # queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
@@ -158,9 +158,9 @@ class Cars(generics.ListCreateAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         # for car in serializer.data:
-        for car in serializer.data:
-            if car['id'] in images:
-                car['images'] = images[car['id']]
+        # for car in serializer.data:
+        #     if car['id'] in images:
+        #         car['images'] = images[car['id']]
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
@@ -199,15 +199,6 @@ class Car(generics.RetrieveUpdateDestroyAPIView, generics.DestroyAPIView):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
     permission_classes = [IsAuthenticated]
-
-    def retrieve(self, request, pk, *args, **kwargs):
-        images = get_images(request=request, user_email=request.user.email, car_id=pk)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        data = serializer.data
-        data['images'] = images[pk]
-        print(data)
-        return Response(data)
 
 
 class Country(generics.ListAPIView):

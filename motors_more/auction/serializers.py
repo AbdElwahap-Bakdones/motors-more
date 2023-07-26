@@ -1,5 +1,7 @@
 from djoser.serializers import UserCreateSerializer as DjoserUserCreateSerializer
 from rest_framework import serializers
+from django.contrib.sites.shortcuts import get_current_site
+from django.conf import settings
 from . import models
 
 
@@ -44,15 +46,28 @@ class TechnicalConditionSerializer(serializers.ModelSerializer):
 
 class CarSerializer(serializers.ModelSerializer):
     user = UserCreateSerializer(source='user_id', read_only=True)
-    # images = serializers.ListField(read_only=True)
+    images = serializers.SerializerMethodField(read_only=True)
     car_model = serializers.CharField(source='car_models', read_only=True)
     price = serializers.CharField(read_only=True)
+
+    def get_images(self, obj):
+        query = models.Media.objects.filter(car_id=obj.pk).values_list('image_id__image', flat=True)
+
+        data = []
+
+        current_site = get_current_site(self.context['request'])
+        for image_id__image in query:
+            print(image_id__image)
+            absolute_url = settings.MEDIA_URL + str(image_id__image)
+            data.append('http://'+current_site.domain+absolute_url)
+
+        return data
 
     class Meta:
         model = models.Car
         fields = ['id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title',
                   'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location',
-                  'car_model', 'car_models', 'engine_capacity', 'damage', 'drive_type']
+                  'car_model', 'car_models', 'engine_capacity', 'damage', 'drive_type', 'images']
 
 
 class RequestAuctionSerializer(serializers.ModelSerializer):

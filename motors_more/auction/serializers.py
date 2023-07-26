@@ -49,6 +49,14 @@ class CarSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField(read_only=True)
     car_model = serializers.CharField(source='car_models', read_only=True)
     price = serializers.CharField(read_only=True)
+    province_name = serializers.CharField(source='location.province_name', read_only=True)
+    country_name = serializers.CharField(source='location.country_id.country_name', read_only=True)
+
+    class Meta:
+        model = models.Car
+        fields = ['id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title',
+                  'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location', 'province_name',
+                  'country_name', 'car_model', 'car_models', 'engine_capacity', 'damage', 'drive_type', 'images']
 
     def get_images(self, obj):
         query = models.Media.objects.filter(car_id=obj.pk).values_list('image_id__image', flat=True)
@@ -62,12 +70,6 @@ class CarSerializer(serializers.ModelSerializer):
             data.append('http://'+current_site.domain+absolute_url)
 
         return data
-
-    class Meta:
-        model = models.Car
-        fields = ['id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title',
-                  'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location',
-                  'car_model', 'car_models', 'engine_capacity', 'damage', 'drive_type', 'images']
 
 
 class RequestAuctionSerializer(serializers.ModelSerializer):
@@ -124,8 +126,8 @@ class AuctionSerializer(serializers.ModelSerializer):
 
 class CarInAuction(serializers.ModelSerializer):
     car_info = CarSerializer(source='car_id', read_only=True)
-    auction_info = AuctionSerializer(source='auction_id', read_only=True)
+    auction_date = serializers.DateField(source='auction_id.date', read_only=True)
 
     class Meta:
         model = models.CarInAuction
-        fields = ['auction_id', 'car_id', 'status', 'car_info', 'auction_info']
+        fields = ['auction_id', 'auction_date', 'car_id', 'status', 'car_info']

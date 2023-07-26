@@ -109,7 +109,8 @@ class AuctionSerializer(serializers.ModelSerializer):
 
 class CarInAuction(serializers.ModelSerializer):
     car_info = CarSerializer(source='car_id', read_only=True)
+    auction_info = AuctionSerializer(source='auction_id', read_only=True)
 
     class Meta:
         model = models.CarInAuction
-        fields = ['auction_id', 'car_id', 'status', 'car_info']
+        fields = ['auction_id', 'car_id', 'status', 'car_info', 'auction_info']

@@ -12,7 +12,27 @@ import socketio
 
 from django.core.wsgi import get_wsgi_application
 from auction.views import sio
+from auction.schedule import print_something
+import schedule
+import threading
+import time
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'motors_more.settings')
+
+
+def run_scheduled_job():
+    schedule.every(1).minutes.do(print_something)
+
+    while True:
+        # print('22222222222222')
+        schedule.run_pending()
+        # print_something()
+        # time.sleep(20)
+
+
+# Start the scheduled job in a separate thread
+job_thread = threading.Thread(target=run_scheduled_job)
+job_thread.daemon = True
+job_thread.start()
 
 application = get_wsgi_application()
 application = socketio.WSGIApp(sio, application)

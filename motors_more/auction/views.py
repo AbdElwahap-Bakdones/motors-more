@@ -1,3 +1,6 @@
+from .schedule import print_something
+import time
+import schedule
 from django.shortcuts import render
 from rest_framework import mixins
 from . import serializers, models
@@ -15,6 +18,16 @@ from rest_framework.parsers import JSONParser
 import socketio
 
 sio = socketio.Server(async_mode='threading', cors_allowed_origins='*', ping_timeout=10)  # ,upgrade_timeout=500)
+
+
+# def start_cron_job():
+#     # Schedule the job to run every 5 minutes
+#     schedule.every(5).minutes.do(print_something)
+
+#     # Run the scheduler in the background
+#     while True:
+#         schedule.run_pending()
+#         time.sleep(1)
 
 
 @sio.event

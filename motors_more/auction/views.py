@@ -12,6 +12,23 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Value, CharField, Field
 from rest_framework.parsers import JSONParser
 
+import socketio
+
+sio = socketio.Server(async_mode='threading', cors_allowed_origins='*', ping_timeout=10)  # ,upgrade_timeout=500)
+
+
+@sio.event
+def connect(sid, environ):
+    print('+++++++++++++++++++++++++++++++++++++++++++++++++++ ')
+    sio.save_session(sid, {'username': sid})
+
+
+@sio.event
+def hello(sid):
+    print('helooooooooooooooooooooooooooo ')
+    sio.emit('hello')
+    # sio.save_session(sid, {'username': sid})
+
 
 @api_view(['GET', 'POST'])
 def test(request):
@@ -302,3 +319,15 @@ class CarInAuction(generics.ListAPIView):
         else:
             queryset = models.CarInAuction.objects.all()
         return queryset
+
+
+class RequestJoinAuction(generics.CreateAPIView):
+    queryset = models.UserInAuction.objects.all()
+    serializer_class = serializers.UserInAuctionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        request.data['user_id'] = request.user.pk
+        request.data['status'] = 'waiting'
+        print(request.data)
+        return super().create(request, *args, **kwargs)

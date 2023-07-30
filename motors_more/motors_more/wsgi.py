@@ -8,9 +8,11 @@ https://docs.djangoproject.com/en/4.2/howto/deployment/wsgi/
 """
 
 import os
+import socketio
 
 from django.core.wsgi import get_wsgi_application
-
+from auction.views import sio
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'motors_more.settings')
 
 application = get_wsgi_application()
+application = socketio.WSGIApp(sio, application)

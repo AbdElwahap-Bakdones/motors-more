@@ -23,5 +23,6 @@ urlpatterns = [
     path('add_cars_to_auction', views.add_car_to_auction),
     path('car_in_auction/', views.CarInAuction.as_view()),
     path('upload_images', views.upload_images),
+    path('request_join_auction', views.RequestJoinAuction.as_view()),
     path('test', views.test),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

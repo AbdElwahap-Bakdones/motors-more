@@ -156,7 +156,11 @@ class RequestAuction(models.Model):
 class UserInAuction(models.Model):
     auction_id = models.ForeignKey(Auction, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    status_art = [('watcher', 'watcher'), ('participant', 'participant'), ('withdrawer', 'withdrawer')]
+    status_art = [
+        ('watcher', 'watcher'),
+        ('participant', 'participant'),
+        ('withdrawer', 'withdrawer'),
+        ('waiting', 'waiting')]
     status = models.CharField(choices=status_art, max_length=50)
     have_buy = models.BooleanField(default=False)
 

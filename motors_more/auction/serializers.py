@@ -132,3 +132,9 @@ class CarInAuction(serializers.ModelSerializer):
     class Meta:
         model = models.CarInAuction
         fields = ['auction_id', 'auction_date', 'car_id', 'status', 'car_info']
+
+
+class UserInAuctionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserInAuction
+        fields = '__all__'

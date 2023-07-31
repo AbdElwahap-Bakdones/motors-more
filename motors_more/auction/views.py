@@ -15,9 +15,9 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Value, CharField, Field
 from rest_framework.parsers import JSONParser
 
-import socketio
+# import socketio
 
-sio = socketio.Server(async_mode='threading', cors_allowed_origins='*', ping_timeout=10)  # ,upgrade_timeout=500)
+# SIO = socketio.Server(async_mode='threading', cors_allowed_origins='*', ping_timeout=10)  # ,upgrade_timeout=500)
 
 
 # def start_cron_job():
@@ -30,17 +30,21 @@ sio = socketio.Server(async_mode='threading', cors_allowed_origins='*', ping_tim
 #         time.sleep(1)
 
 
-@sio.event
+@settings.SIO.event
 def connect(sid, environ):
     print('+++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-    sio.save_session(sid, {'username': sid})
+    settings.SIO.emit('hello', {'123': 123})
+
+    settings.SIO.save_session(sid, {'username': sid})
 
 
-@sio.event
-def hello(sid):
+@settings.SIO.event
+def hello(sid, data):
+    print(data)
+    # print(data)
     print('helooooooooooooooooooooooooooo ')
-    sio.emit('hello')
-    # sio.save_session(sid, {'username': sid})
+    settings.SIO.emit('koko')
+    # SIO.save_session(sid, {'username': sid})
 
 
 @api_view(['GET', 'POST'])

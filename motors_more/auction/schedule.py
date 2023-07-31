@@ -1,24 +1,18 @@
-from datetime import datetime
+import datetime
 import time
-import threading
-
-global f
+from .models import Auction
 
 
 def print_something():
-    print('cron ***************is**************** run')
-    f = 0
-    while True:
-        time.sleep(5)
-        f = f+1
-        print("2313131232131")
-        print(datetime.now())
-        if f > 2:
-            print_something()
-
-
-def run_cron_job():
-    print('cron ***************is**************** runing')
-    job_thread = threading.Thread(target=print_something)
-    job_thread.daemon = True
-    job_thread.start()
+    print('start')
+    date = datetime.datetime.now()+datetime.timedelta(minutes=10)
+    # print(date.time())
+    print(Auction.objects.all().values_list('date__day', flat=True)[0])
+    # if Auction.objects.all().values_list('time', flat=True)[0] < date.time():
+    #     print('>>>>>>>>>>>')
+    print(datetime.datetime.now().day)
+    if Auction.objects.filter(
+            date__day=datetime.datetime.now().day, time__lt=date.time(),
+            status='later auction').exists():
+        print('auction time')
+    # settings.SIO.emit('liveAuctionTime')

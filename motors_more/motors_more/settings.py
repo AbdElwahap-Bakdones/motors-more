@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+import socketio
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -143,6 +144,7 @@ DJOSER = {
 }
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
+SIO = socketio.Server(async_mode='threading', cors_allowed_origins='*', ping_timeout=10)  # ,upgrade_timeout=500)
 
 
 LANGUAGE_CODE = 'en-us'

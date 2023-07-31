@@ -14,7 +14,7 @@ import socketio
 from django.core.wsgi import get_wsgi_application
 from django.conf import settings
 
-from auction.schedule import print_something
+from auction.schedule import check_auction_time
 import schedule
 import threading
 import time
@@ -22,7 +22,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'motors_more.settings')
 
 
 def run_scheduled_job():
-    schedule.every(1).seconds.do(print_something)
+    schedule.every(1).seconds.do(check_auction_time)
 
     while True:
         # print('22222222222222')

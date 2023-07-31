@@ -42,10 +42,11 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 CORS_ORIGIN_ALLOW_ALL = True
-CORS_ORIGIN_WHITELIST = [
-    "http://localhost:3000",
-    "http://localhost:5175",
-]
+# CORS_ORIGIN_WHITELIST = [
+#     "*",
+#     "http://localhost:3000",
+#     "http://localhost:5175",
+# ]
 # Application definition
 
 INSTALLED_APPS = [

@@ -1,4 +1,4 @@
-from .schedule import print_something
+from .schedule import check_auction_time
 import time
 import schedule
 from django.shortcuts import render
@@ -15,36 +15,14 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Value, CharField, Field
 from rest_framework.parsers import JSONParser
 
-# import socketio
 
 # SIO = socketio.Server(async_mode='threading', cors_allowed_origins='*', ping_timeout=10)  # ,upgrade_timeout=500)
 
 
-# def start_cron_job():
-#     # Schedule the job to run every 5 minutes
-#     schedule.every(5).minutes.do(print_something)
-
-#     # Run the scheduler in the background
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(1)
-
-
-@settings.SIO.event
-def connect(sid, environ):
-    print('+++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-    settings.SIO.emit('hello', {'123': 123})
-
-    settings.SIO.save_session(sid, {'username': sid})
-
-
-@settings.SIO.event
-def hello(sid, data):
-    print(data)
-    # print(data)
-    print('helooooooooooooooooooooooooooo ')
-    settings.SIO.emit('koko')
-    # SIO.save_session(sid, {'username': sid})
+# @settings.SIO.event
+# def connect(sid, environ):
+#     print('+++++++++++++++++++++++++++++++++++++++++++++++++++ ')
+#     settings.SIO.save_session(sid, {'username': sid})
 
 
 @api_view(['GET', 'POST'])

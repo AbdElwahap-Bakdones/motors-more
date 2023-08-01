@@ -16,15 +16,6 @@ from django.db.models import Value, CharField, Field
 from rest_framework.parsers import JSONParser
 
 
-# SIO = socketio.Server(async_mode='threading', cors_allowed_origins='*', ping_timeout=10)  # ,upgrade_timeout=500)
-
-
-# @settings.SIO.event
-# def connect(sid, environ):
-#     print('+++++++++++++++++++++++++++++++++++++++++++++++++++ ')
-#     settings.SIO.save_session(sid, {'username': sid})
-
-
 @api_view(['GET', 'POST'])
 def test(request):
     data = models.Media.objects.filter(
@@ -270,7 +261,7 @@ class RequestAuction(generics.ListCreateAPIView):
                 user_id__user_kind='User', status='pending').exists():
             return Response({'message': 'you already have pending request'}, status=status.HTTP_400_BAD_REQUEST)
         elif request_obj.filter(car_id=request.data['car_id'], status__in=['pending', 'accepted']).exists():
-            return Response({'message': 'the car alrady in request'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'the car already in request'}, status=status.HTTP_400_BAD_REQUEST)
 
         data = request.data
         data['user_id'] = request.user.pk
@@ -307,13 +298,16 @@ class CarInAuction(generics.ListAPIView):
     serializer_class = serializers.CarInAuction
 
     def get_queryset(self):
-        print(self.request.query_params)
-        auction_id = self.request.query_params.get('auction_id', None)
-        if auction_id:
-            queryset = models.CarInAuction.objects.filter(auction_id=auction_id)
-        else:
-            queryset = models.CarInAuction.objects.all()
-        return queryset
+        try:
+            print(self.request.query_params)
+            auction_id = self.request.query_params.get('auction_id', None)
+            if auction_id:
+                queryset = models.CarInAuction.objects.filter(auction_id=auction_id).order_by('car_id')
+            else:
+                queryset = models.CarInAuction.objects.all().order_by('car_id')
+            return queryset
+        except Exception as e:
+            print('Error in CarInAuction.get_queryset : ', e)
 
 
 class RequestJoinAuction(generics.CreateAPIView):
@@ -322,7 +316,16 @@ class RequestJoinAuction(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
-        request.data['user_id'] = request.user.pk
-        request.data['status'] = 'waiting'
-        print(request.data)
-        return super().create(request, *args, **kwargs)
+        if not request.user.user_kind == 'user':
+            message = 'you dont have permission to join auction'
+            print(message)
+            return Response({'message': message})
+
+        if models.RequestAuction.objects.filter(user_id=request.user.pk, status='waiting').exists():
+            request.data['user_id'] = request.user.pk
+            request.data['status'] = 'waiting'
+            print(request.data)
+            return super().create(request, *args, **kwargs)
+        message = 'you already joined'
+        print(message)
+        return Response({'message': message})

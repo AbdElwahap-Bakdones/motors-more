@@ -27,6 +27,7 @@ class User(AbstractUser):
     location = models.ForeignKey(Province, on_delete=models.PROTECT, null=True)
     kind_art = [('User', 'User'), ('Company', 'Company'), ('Admin', 'Admin')]
     user_kind = models.CharField(choices=kind_art, default='User', max_length=50)
+    balance = models.FloatField(default=500)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'user_kind']
 

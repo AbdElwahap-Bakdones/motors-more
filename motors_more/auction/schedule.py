@@ -15,11 +15,17 @@ def check_auction_time():
     auction = models.Auction.objects.filter(
         date__day=datetime.datetime.now().day, time__gt=datetime.datetime.now().time(), time__lt=date.time(),
         status='later auction')
-    if auction.exists():
+    if True or auction.exists():
+        '''auction.get().pk'''
         users_have_request = models.UserInAuction.objects.filter(
-            auction_id=auction.get().pk, status='waiting').values_list(
+            auction_id=4, status='waiting').values_list(
             'user_id', flat=True).values_list('id', flat=True)
         # user_
-        data = {'auction_id': str(auction.get().pk)}
-        settings.SIO.emit('liveAuctionTime', data)
+        print(users_have_request)
+        data = {'auction_id': 'str(auction.get().pk)'}
+        for user_id in users_have_request:
+            if user_id in USER_SID:
+                settings.SIO.enter_room(USER_SID[user_id], 'liveAuctionTime')
+        settings.SIO.emit('liveAuctionTime', data, room='liveAuctionTime')
+
         print('auction time')

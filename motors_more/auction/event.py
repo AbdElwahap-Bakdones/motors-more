@@ -1,20 +1,23 @@
 from django.conf import settings
 import jwt
-
+from . import models
 USER_SID = {}
+USER_INFO = {}
 USER_SIDS_IN_AUCTION = {}
 
 
 @settings.SIO.event
 def connect(sid, environ, auth):
-    print('connect ', sid)
-    print('auth ', auth)
-
-    token = jwt.decode(
-        jwt='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk2MDk2ODk3LCJpYXQiOjE2OTA5MTI4OTcsImp0aSI6ImExMTBiNThlMmYzNDQ0MDc5NGM2ZjU2Yzg4ZGI4YmI1IiwidXNlcl9pZCI6MX0.f0PtSH0VUF59lz2M0VKC2M8essYFZxLhwqEUzQYQRUw',
+    user = jwt.decode(
+        jwt=auth.get('token'),
         algorithms='HS256', key=settings.SECRET_KEY)
-    print(token.get('user_id'))
-    USER_SID[token.get('user_id')] = sid
+    # print(user.get('user_id'))
+    USER_SID[user.get('user_id')] = sid
+    USER_INFO[sid] = models.User.objects.get(pk=user.get('user_id'))
+
+    if models.UserInAuction.objects.filter(user_id=user.get('user_id'), status='participant').exists():
+        print('hassssssss liveeeeeeeee auctionnnnnnnnnnnn')
+        settings.SIO.emit('has_live_auction', {'has_live_auction': True})
     print('+++++++++++++++++++++++++++++++++++++++++++++++++++ ')
     settings.SIO.save_session(sid, {'username': sid})
 
@@ -28,7 +31,7 @@ def disconnect(sid):
 def hello(sid, data):
     print(data)
     # print(data)
-    print('helooooooooooooooooooooooooooo ')
+    print('  helooooooooooooooooooooooooooo ')
     # SIO.save_session(sid, {'username': sid})
 
 
@@ -36,7 +39,13 @@ def hello(sid, data):
 def join_auction(sid, data):
     try:
         print('joiiiiiiiiiiiiiiiiinde')
+        print(USER_INFO[sid]['email'])
+        models.UserInAuction.objects.filter(user_id=USER_INFO[sid]['pk']).update(stats='participant')
+        # USER_SIDS_IN_AUCTION
         settings.SIO.enter_room(sid, data.get.get('auction_id'))
+        user_info = models.User.objects.filter(pk=USER_SID)
+        data = {}
+        settings.SIO.emit('user_joined')
     except Exception as e:
         print('Error in EVENT join_auction: ', e)
 

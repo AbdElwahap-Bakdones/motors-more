@@ -140,7 +140,8 @@ SIMPLE_JWT = {
 
 }
 DJOSER = {
-    'SERIALIZERS': {'user_create': 'auction.serializers.UserCreateSerializer'},
+    'SERIALIZERS': {'user_create': 'auction.serializers.UserCreateSerializer',
+                    },
     'LOGIN_FIELD': 'email'
 }
 # Internationalization

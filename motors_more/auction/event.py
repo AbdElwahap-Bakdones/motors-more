@@ -3,8 +3,8 @@ import jwt
 from . import models
 USER_SID = {}
 USER_INFO = {}
-# USER_SIDS_IN_AUCTION {auction_id:{'sid':sid,'auction_id':auction_id,'user_id':user_id,'country':country,'province':province}}
-USER_SIDS_IN_AUCTION = {int: {str: int, str: int, str: int, str: str, str: str}}
+# USER_SIDS_IN_AUCTION {auction_id:{'user_count':user_count,user_id:{'sid':sid,'auction_id':auction_id,'user_id':user_id,'country':country,'province':province}}}
+USER_INFO_IN_AUCTION = {int: {str: int, int: {str: int, str: int, str: int, str: str, str: str}}}
 # OUTBID_DATA {auction_id:{}}
 OUTBID_DATA = {int: dict}
 
@@ -43,10 +43,20 @@ def join_auction(sid, data):
             auction_id__notebook_conditions__lt=user_info.balance)
         if user_in_auction.exists():
             user_in_auction.update(status='participant')
-            USER_SIDS_IN_AUCTION[data.get('auction_id')] = {'sid': sid, 'user_id': user_info.pk, 'auction_id': data.get(
+
+            if not data.get('uuction_id') in USER_INFO_IN_AUCTION:
+                USER_INFO_IN_AUCTION[data.get('auction_id')] = {'user_count': 0}
+
+            USER_INFO_IN_AUCTION[data.get('auction_id')][user_info.pk] = {'sid': sid, 'user_id': user_info.pk, 'auction_id': data.get(
                 'user_id',), 'province': user_info.location.province_name, 'country': user_info.location.country_id.country_name}
+
+            USER_INFO_IN_AUCTION[data.get('auction_id')]['user_count'] += 1
+
             settings.SIO.enter_room(sid, data.get('auction_id'))
-            settings.SIO.emit('user_joined', USER_SIDS_IN_AUCTION[data.get('auction_id')])
+
+            settings.SIO.emit(
+                'user_joined', USER_INFO_IN_AUCTION[data.get('auction_id')],
+                room=data.get('auction_id', skip_sid=sid))
     except Exception as e:
         print('Error in EVENT join_auction: ', e)
 

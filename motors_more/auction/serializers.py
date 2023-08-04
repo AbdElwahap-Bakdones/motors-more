@@ -138,3 +138,9 @@ class UserInAuctionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserInAuction
         fields = '__all__'
+
+
+class AutoSoldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AutoSold
+        fields = '__all__'

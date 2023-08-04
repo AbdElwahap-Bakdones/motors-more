@@ -87,6 +87,10 @@
 
         }
 
+        .btn.evaluated {
+            background: #007BFF;
+        }
+
         input[type="date"] {
             padding: 8px;
             font-size: 16px;
@@ -113,6 +117,7 @@
                 <th>Car ID</th>
                 <th>User kind</th>
                 <th>Status</th>
+                <th>evaluated</th>
                 <th>Add to Auction</th>
             </tr>
         </thead>
@@ -124,7 +129,16 @@
                 <td>{{ request_auction.user_id.user_kind}}</td>
                 <td>{{ request_auction.status }}</td>
                 <td>
-                    {% if request_auction.status == 'pending' %}
+                    {% if request_auction.car_id.price > '0' %}
+                    {{request_auction.car_id.price}}
+
+                    {%else%}
+                    <button onclick="Evaluation(this, '{{ request_auction.car_id.pk }}')"
+                        class="btn evaluated">Evaluation</button>
+                    {%endif%}
+                </td>
+                <td>
+                    {% if request_auction.status == 'pending' and request_auction.car_id.price > '0' %}
                     <button onclick="AcceptAuction(this, '{{ request_auction.car_id.pk }}')"
                         class="btn add">Add</button>
                     {%else%}
@@ -179,6 +193,7 @@
 
     <script>
         var selectedAuctionID = null;
+        var car_has_evaluated = [];
         document.addEventListener("DOMContentLoaded", function () {
             const radioButtons = document.querySelectorAll('input[name="selected_auction"]');
 
@@ -205,6 +220,10 @@
                     }
                 }
             }
+        }
+        function Evaluation(button, car_id) {
+            button.classList.remove("evaluated");
+            console.log(car_id);
         }
         var cars = new Set(); // Create an empty Set
         function AcceptAuction(button, car_id) {

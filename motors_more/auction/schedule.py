@@ -4,11 +4,9 @@ import time
 from . import models
 from django.conf import settings
 import jwt
-from .event import USER_SID, USER_INFO, OUTBID_DATA, AUCTION_INFO
+from .event import USER_SID, COUNTDOWN_AUCTION, start_auction
 import threading
 import schedule
-
-COUNTDOWN_AUCTION = {}
 
 
 def check_auction_time():
@@ -47,25 +45,3 @@ def count_down(*args, **kwargs):
     print('x', seconds)
     task = Timer(15, start_auction, kwargs={'auction_id': kwargs['auction_id']})
     task.start()
-
-
-def start_auction(*args, **kwargs):
-    del COUNTDOWN_AUCTION[kwargs['auction_id']]
-    models.Auction.objects.filter(pk=kwargs['auction_id']).update(status='live auction')
-    car = models.CarInAuction.objects.filter(auction_id=kwargs['auction_id']).order_by('car_id')
-    print(car)
-    OUTBID_DATA[kwargs['auction_id']] = {'auction_id': kwargs['auction_id'],
-                                         'car_bids_on_it': {}, 'price': car.first().car_id.price, 'counter': 0}
-    count = 0
-    while count < 30:
-        count += 1
-        OUTBID_DATA[kwargs['auction_id']]['counter'] = count
-        settings.SIO.emit('start_auction', OUTBID_DATA[kwargs['auction_id']], room=kwargs['auction_id'])
-        # print(kwargs)
-        print("hello world")
-        print(OUTBID_DATA[kwargs['auction_id']])
-        time.sleep(1)
-
-
-def auction_starting(*args, **kwargs):
-    AUCTION_INFO[kwargs['']]

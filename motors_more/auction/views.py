@@ -31,7 +31,7 @@ def add_car_to_auction(request):
     auction_id = request.data['auction_id']
     print(cars_id)
     for car in cars_id:
-        seri = serializers.CarInAuction(data={'car_id': car, 'auction_id': auction_id, 'status': 'for sale'})
+        seri = serializers.CarInAuctionSerializer(data={'car_id': car, 'auction_id': auction_id, 'status': 'for sale'})
         seri.is_valid(raise_exception=True)
         seri.save()
         models.RequestAuction.objects.filter(car_id=car).update(status='accepted')
@@ -119,8 +119,8 @@ class Cars(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
-        # queryset = models.Car.objects.filter(user_id__email=request.user)
-        queryset = models.Car.objects.filter(user_id__email='admin@g.com')
+        queryset = models.Car.objects.filter(user_id__email=request.user)
+        # queryset = models.Car.objects.filter(user_id__email='admin@g.com')
         # images = get_images(request=request, user_email=request.user.email)
 
         # queryset = self.filter_queryset(self.get_queryset())
@@ -265,7 +265,7 @@ class Auction(generics.ListAPIView):
 
 
 class CarInAuction(generics.ListAPIView):
-    serializer_class = serializers.CarInAuction
+    serializer_class = serializers.CarInAuctionSerializer
 
     def get_queryset(self):
         try:
@@ -286,12 +286,13 @@ class RequestJoinAuction(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
-        if not request.user.user_kind == 'user':
+        if not request.user.user_kind == 'User':
             message = 'you dont have permission to join auction'
             print(message)
             return Response({'message': message})
-
-        if models.RequestAuction.objects.filter(user_id=request.user.pk, status='waiting').exists():
+        if not models.UserInAuction.objects.filter(
+                auction_id=request.data['auction_id'],
+                user_id=request.user.pk, status='waiting').exists():
             request.data['user_id'] = request.user.pk
             request.data['status'] = 'waiting'
             print(request.data)

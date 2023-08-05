@@ -52,12 +52,14 @@ class CarSerializer(serializers.ModelSerializer):
     price = serializers.CharField(read_only=True)
     province_name = serializers.CharField(source='location.province_name', read_only=True)
     country_name = serializers.CharField(source='location.country_id.country_name', read_only=True)
+    status = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = models.Car
-        fields = ['id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title',
-                  'engine_type', 'gear_type', 'cylinders', 'notes', 'price', 'location', 'province_name',
-                  'country_name', 'car_model', 'car_models', 'car_brand', 'engine_capacity', 'damage', 'drive_type', 'images']
+        fields = [
+            'id', 'user_id', 'user', 'mileage', 'color', 'type', 'manufacturing_year', 'clean_title', 'engine_type',
+            'gear_type', 'cylinders', 'notes', 'price', 'location', 'province_name', 'country_name', 'car_model',
+            'car_models', 'car_brand', 'engine_capacity', 'damage', 'drive_type', 'images', 'status']
 
     def get_images(self, obj):
         query = models.Media.objects.filter(car_id=obj.pk).values_list('image_id__image', flat=True)
@@ -71,6 +73,13 @@ class CarSerializer(serializers.ModelSerializer):
             data.append('http://'+current_site.domain+absolute_url)
 
         return data
+
+    def get_status(self, obj):
+        query = models.CarInAuction.objects.filter(car_id=obj.pk, status='sold')
+        if query.exists():
+            return 'sold'
+        else:
+            return 'for sale'
 
 
 class RequestAuctionSerializer(serializers.ModelSerializer):
@@ -125,13 +134,19 @@ class AuctionSerializer(serializers.ModelSerializer):
         fields = ['id', 'date', 'title', 'extendedProps']
 
 
-class CarInAuction(serializers.ModelSerializer):
+class CarInAuctionSerializer(serializers.ModelSerializer):
     car_info = CarSerializer(source='car_id', read_only=True)
     auction_date = serializers.DateField(source='auction_id.date', read_only=True)
+    auction_status = serializers.SerializerMethodField(read_only=True)
+    status = serializers.CharField(write_only=True)
 
     class Meta:
         model = models.CarInAuction
-        fields = ['auction_id', 'auction_date', 'car_id', 'status', 'car_info']
+        fields = ['auction_id', 'auction_date', 'car_id', 'status', 'car_info',
+                  'auction_status']
+
+    def get_auction_status(self, obj):
+        return obj.auction_id.status
 
 
 class UserInAuctionSerializer(serializers.ModelSerializer):

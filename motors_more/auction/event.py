@@ -38,7 +38,7 @@ def connect(sid, environ, auth):
         settings.SIO.emit('has_live_auction', {'auction_id': has_auction.get().auction_id.pk}, room=sid)
         return
 
-    if has_auction.filter(status='waiting').exists():
+    if has_auction.filter(status__in=['waiting', 'watcher']).exists():
         print('senddddddddddddd notifyyyyyyyyyyyyyyyy tooooo joinnnnnnnnnnn')
         settings.SIO.emit('liveAuctionTime', {'auction_id': str(has_auction.first().auction_id.pk)}, room=sid)
     settings.SIO.save_session(sid, {'username': sid})

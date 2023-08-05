@@ -26,12 +26,16 @@ def check_auction_time():
             job_thread.daemon = True
             job_thread.start()
 
-        users_have_request = models.UserInAuction.objects.filter(
-            auction_id=auction.get().pk, status='waiting').values_list(
-            'user_id', flat=True).values_list('user_id', flat=True)
+        users_have_participant = models.UserInAuction.objects.filter(
+            auction_id=auction.get().pk, status='participant').values_list(
+            'user_id', flat=True)
         data = {'auction_id': str(auction.get().pk)}
-        for user_id in users_have_request:
-            if user_id in USER_SID:
+        # for user_id in users_have_request:
+        #     if user_id in USER_SID:
+        #         settings.SIO.enter_room(USER_SID[user_id], 'liveAuctionTime')
+
+        for user_id in USER_SID:
+            if not users_have_participant.contains(user_id):
                 settings.SIO.enter_room(USER_SID[user_id], 'liveAuctionTime')
         settings.SIO.emit('liveAuctionTime', data, room='liveAuctionTime')
         print('auction time')

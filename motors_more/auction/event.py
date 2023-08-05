@@ -59,11 +59,24 @@ def join_auction(sid, data):
             auction_id=data.get('auction_id'),
             status__in=['waiting', 'participant'],
         )
+        if not user_in_auction.exists():
+            sreia = serializers.UserInAuctionSerializer(
+                data={'user_id': USER_INFO[sid]['pk'],
+                      'auction_id': data.get('auction_id'),
+                      'status': 'watcher'})
+            sreia.is_valid(raise_exception=True)
+            sreia.save()
+
+            settings.SIO.entre_room(sid, 'watcher_'+str(data.get('auction_id')))
+            can_join(sid=sid, data={'can_join': True, 'message': 'ok', 'auction_id': data.get('auction_id')})
+            return
+
         if not user_in_auction.filter(auction_id__notebook_conditions__lt=user_info.balance).exists():
             can_join(sid=sid, data={'can_join': False, 'message': 'you dont have enough balance'})
             return
 
         user_in_auction.update(status='participant')
+        settings.SIO.leave_room(sid, 'liveAuctionTime')
 
         if not data.get('uuction_id') in USER_INFO_IN_AUCTION:
             USER_INFO_IN_AUCTION[data.get('auction_id')] = {'user_count': 0}
@@ -105,6 +118,7 @@ def start_auction(*args, **kwargs):
                 BIDDING[0] = False
                 time.sleep(0.2)
                 continue
+            settings.SIO.emit('watcher', OUTBID_DATA[kwargs['auction_id']], room='watcher_' + kwargs['auction_id'])
             settings.SIO.emit('start_auction', OUTBID_DATA[kwargs['auction_id']], room=kwargs['auction_id'])
             # print(kwargs)
             print("hello world")
@@ -131,6 +145,7 @@ def start_auction(*args, **kwargs):
 
 def auction_end(auction_id: int):
     settings.SIO.emit('auction_end', room=auction_id)
+    settings.SIO.emit('auction_end', room=auction_id)
     del OUTBID_DATA[auction_id]
     del USER_INFO_IN_AUCTION[auction_id]
     models.UserInAuction.objects.filter(auction_id=auction_id)
@@ -143,7 +158,7 @@ def auction_end(auction_id: int):
 def outbid(sid, data):
     try:
         print('outbidoutbidoutbidoutbidoutbidoutbid')
-        if OUTBID_DATA[data['auction_id']]['counter'] == 0:
+        if OUTBID_DATA[data['auction_id']]['counter'] <= 0 or OUTBID_DATA[data['auction_id']]['counter'] < 30:
             print('erorrrrrorororororroo111111111111111111')
             settings.SIO.emit('bidding_error', {'message': 'auction has finash'}, room=sid)
 
@@ -151,6 +166,11 @@ def outbid(sid, data):
         if False and USER_INFO[sid].get('pk') == data['owner_car_id']:
             print('erorrrrrorororororro2222222222222222222')
             settings.SIO.emit('bidding_error', {'message': 'you can\'t bidding on your own cars'}, room=sid)
+            return
+        if not models.UserInAuction.objects.filter(user_id=USER_SID[sid], status='participant').exists:
+            settings.SIO.emit(
+                'bidding_error', {'message': 'you can\'t bidding on auction you not participant in it'},
+                room=sid)
             return
         BIDDING[0] = True
         print(data)

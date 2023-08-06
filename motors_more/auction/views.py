@@ -157,6 +157,8 @@ class Cars(generics.ListCreateAPIView):
             print(request.data)
             technical_condition = request.data.pop('technical_condition')
             print(technical_condition)
+            if not 'damage' in request.data:
+                request.data['damage'] = ''
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
@@ -184,6 +186,19 @@ class Car(generics.RetrieveUpdateDestroyAPIView, generics.DestroyAPIView):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
     # permission_classes = [IsAuthenticated]
+
+    # @action(permission_classes=[IsAuthenticated])
+    def destroy(self, request, *args, **kwargs):
+        if request.user == 'AnonymousUser':
+            print(request.user)
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        return super().destroy(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if request.user == 'AnonymousUser':
+            print(request.user)
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+        return super().update(request, *args, **kwargs)
 
 
 class Country(generics.ListAPIView):

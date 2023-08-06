@@ -71,7 +71,7 @@
         }
 
         .btn.add {
-            background-color: #d6dc35;
+            background-color: #7a4ffb;
         }
 
         .btn.added {
@@ -113,7 +113,7 @@
         </caption>
         <thead>
             <tr>
-                <th>User ID</th>
+                <th>User </th>
                 <th>Car ID</th>
                 <th>User kind</th>
                 <th>Status</th>
@@ -125,7 +125,7 @@
             {% for request_auction in auctions_request%}
             <tr>
                 <td>{{ request_auction.user_id }}</td>
-                <td>{{ request_auction.car_id }}</td>
+                <td>{{ request_auction.car_id.pk }}</td>
                 <td>{{ request_auction.user_id.user_kind}}</td>
                 <td>{{ request_auction.status }}</td>
                 <td>
@@ -154,11 +154,14 @@
 
     <br>
     <br>
-    <br>
 
     <table id="auctionsTable">
         <caption>
             <h1>Auctions</h1>
+            <input type="button" class="btn add" value="add auction"
+                onclick="window.location.href='http://localhost:8000/admin/auction/auction/add/'">
+            <br>
+            <br>
         </caption>
         <thead>
             <tr>
@@ -222,8 +225,96 @@
             }
         }
         function Evaluation(button, car_id) {
-            button.classList.remove("evaluated");
             console.log(car_id);
+
+            // Disable the main window
+            button.disabled = true;
+
+            // Call the API endpoint to fetch the car data
+            fetch(`http://localhost:8000/car/${car_id}/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Create a new window
+                    const newWindow = window.open('', '_blank', 'width=500,height=600');
+
+                    // Create an HTML table to display the car data
+                    const table = newWindow.document.createElement('table');
+                    table.style.borderCollapse = 'collapse';
+                    table.style.width = '100%';
+
+                    // Function to create table rows
+                    const createTableRow = (label, value) => {
+                        const row = newWindow.document.createElement('tr');
+
+                        const labelCell = newWindow.document.createElement('td');
+                        labelCell.textContent = label;
+                        labelCell.style.border = '1px solid black';
+                        labelCell.style.padding = '5px';
+                        labelCell.style.fontWeight = 'bold';
+
+                        const valueCell = newWindow.document.createElement('td');
+                        valueCell.textContent = value;
+                        valueCell.style.border = '1px solid black';
+                        valueCell.style.padding = '5px';
+
+                        row.appendChild(labelCell);
+                        row.appendChild(valueCell);
+
+                        return row;
+                    };
+                    console.log(data);
+                    // Populate the table with the car data
+                    table.appendChild(createTableRow('ID', data.id));
+                    table.appendChild(createTableRow('car brand', data.car_brand));
+                    table.appendChild(createTableRow('car model', data.car_model));
+                    table.appendChild(createTableRow('clean title', data.clean_title));
+                    table.appendChild(createTableRow('cylinders', data.cylinders));
+                    table.appendChild(createTableRow('damage', data.damage));
+                    table.appendChild(createTableRow('drive type', data.drive_type));
+                    table.appendChild(createTableRow('engine capacity', data.engine_capacity));
+                    table.appendChild(createTableRow('engine type', data.engine_type));
+                    table.appendChild(createTableRow('gear type', data.gear_type));
+                    table.appendChild(createTableRow('manufacturing year', data.manufacturing_year));
+                    table.appendChild(createTableRow('mileage', data.mileage));
+                    table.appendChild(createTableRow('notes', data.notes));
+                    table.appendChild(createTableRow('type', data.type));
+                    table.appendChild(createTableRow('country name', data.country_name));
+                    table.appendChild(createTableRow('province name', data.province_name));
+                    // Add more table rows for other car data properties...
+
+                    // Append the table to the new window
+                    newWindow.document.body.appendChild(table);
+
+                    // Add a button in the new window
+                    const br1 = newWindow.document.createElement('br');
+                    const price = newWindow.document.createElement('input');
+                    const evaluationButton = newWindow.document.createElement('button');
+                    price.type = 'number'
+                    evaluationButton.innerText = 'evaluation';
+                    evaluationButton.addEventListener('click', () => {
+                        if (price.value > 0) {
+                            fetch(`http://localhost:8000/evaluation_car/${car_id}/${price.value}`)
+                                .then(response => response.json())
+                                .then(data => { console.log(price.value) });
+                            // Enable the main window when the new window is closed
+                            console.log('cloooooooose')
+                            newWindow.close();
+                            location.reload();
+                            button.disabled = false;
+                        }
+                        else { newWindow.alert('enter evaluation car  !!!!') }
+                    });
+                    newWindow.document.body.appendChild(br1);
+                    newWindow.document.body.appendChild(price);
+                    newWindow.document.body.appendChild(evaluationButton);
+
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while fetching car data');
+                    // Enable the main window in case of an error
+                    button.disabled = false;
+                });
         }
         var cars = new Set(); // Create an empty Set
         function AcceptAuction(button, car_id) {

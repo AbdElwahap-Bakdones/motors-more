@@ -45,6 +45,18 @@ def view_auctions_request(request):
     return render(request, 'request_auction.html', {'auctions_request': auctions_request, 'auctions': auctions})
 
 
+@api_view(['GET'])
+def evaluation_car(request, car_id, price):
+    print(price)
+    print(car_id)
+    print(request.user)
+    car = models.Car.objects.filter(id=car_id, price=0)
+    if car.exists():
+        car.update(price=price)
+        return Response({'message': 'ok'}, status=status.HTTP_200_OK)
+    return Response({'message': 'some things wrong car already evaluated'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 def get_images(request, user_email: str, car_id=0):
 
     if car_id > 0:
@@ -171,7 +183,7 @@ class Cars(generics.ListCreateAPIView):
 class Car(generics.RetrieveUpdateDestroyAPIView, generics.DestroyAPIView):
     queryset = models.Car.objects.all()
     serializer_class = serializers.CarSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
 class Country(generics.ListAPIView):

@@ -14,7 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 import os
 import socketio
-
+from django.http import request
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -223,10 +223,8 @@ JAZZMIN_SETTINGS = {
 
     # Custom links to append to app groups, keyed on app name
     "topmenu_links": [
-        {"name": "Car add requests",  "url": "https://dashboard.tashbeek-fair.com/charts",
+        {"name": "Car add requests",  "url": "http://localhost:8000/auctions_request/",
             "permissions": ["fair.view_floor"], "new_window": True},
-        {"name": "send CVs1",  "url": "https://dashboard.tashbeek-fair.com/send_SVs",
-         "permissions": ["fair.view_floor"], "new_window": True},
 
 
     ],

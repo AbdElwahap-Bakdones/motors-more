@@ -16,9 +16,8 @@ def check_auction_time():
         date = datetime.datetime.now()+datetime.timedelta(hours=1)
         # print(datetime.datetime.now().time())
 
-        auction = models.Auction.objects.filter(status='later auction')
-        # date__day=datetime.datetime.now().day, time__gt=datetime.datetime.now().time(), time__lt=date.time(),
-        # )
+        auction = models.Auction.objects.filter(status='later auction', date__day=datetime.datetime.now(
+        ).day, time__gt=datetime.datetime.now().time(), time__lt=date.time(), )
         if auction.exists():
             if not auction.get().pk in COUNTDOWN_AUCTION:
                 COUNTDOWN_AUCTION[auction.get().pk] = True

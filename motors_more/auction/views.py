@@ -151,14 +151,15 @@ class Cars(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
 
         try:
+            print(request.data)
             car_instance = 0
             request.data['user_id'] = request.user.pk
             # request.data['user_id']='ee@gg.com'
             print(request.data)
-            technical_condition = request.data.pop('technical_condition')
+            technical_condition = request.data.pop('technical_condition', {})
             print(technical_condition)
             if not 'damage' in request.data:
-                request.data['damage'] = ''
+                request.data['damage'] = 'NO'
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)

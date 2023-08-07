@@ -13,8 +13,8 @@ def check_auction_time():
     # print('check')
 
     try:
-        date = datetime.datetime.now()+datetime.timedelta(hours=1)
-        # print(datetime.datetime.now().time())
+        date = datetime.datetime.now()+datetime.timedelta(minutes=59)
+        print(datetime.datetime.now().time())
 
         auction = models.Auction.objects.filter(status='later auction', date__day=datetime.datetime.now(
         ).day, time__gt=datetime.datetime.now().time(), time__lt=date.time(), )
@@ -50,5 +50,5 @@ def count_down(*args, **kwargs):
     second = kwargs.get('auction_time').second-x.second
     seconds = (minute*60)+(second)
     print('x', seconds)
-    task = Timer(15, start_auction, kwargs={'auction_id': kwargs['auction_id']})
+    task = Timer(seconds, start_auction, kwargs={'auction_id': kwargs['auction_id']})
     task.start()

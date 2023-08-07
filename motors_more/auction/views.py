@@ -18,10 +18,85 @@ from rest_framework.parsers import JSONParser
 
 @api_view(['GET', 'POST'])
 def test(request):
-    data = models.Media.objects.filter(
-        car_id__user_id__email='admin@g.com').values_list('car_id', 'image_id__image')
+    brands = models.CarModels.objects.all()
+    brand_and_model = {}
+    for brand in brands:
+        if not brand.brand_id.name in brand_and_model:
+            brand_and_model[brand.brand_id.name] = []
+        brand_and_model[brand.brand_id.name].append(brand.name)
+    provinces = {
 
-    return Response(data={'data': data}, status=status.HTTP_200_OK)
+        "ALEPPO": [
+            "Atarib",
+            "Jarabulus",
+            "Dayr Hafir",
+            "Afrin",
+            "Ayn Al-Arab",
+            "Al-Bab",
+            "As Safirah",
+            "Manbij"
+        ],
+        "LATTAKIA": [
+            "Jableh",
+            "Qardaha",
+            "Al-Haffa",
+            "Slinfah",
+            "Kessab",
+            "Ayn al-Tineh",
+            "Qastal Ma'af",
+            "Hanadi",
+            "Al-Bahluliyah"
+        ],
+        "Homs": [
+            "Al-Rastan",
+            "Khirbet Tin Nur",
+            "Al-Qusayr",
+            "Al-Qabu",
+            "Al-Mukharram"
+        ],
+        "Hama": [
+            "Al-Hamraa",
+            "Hirbnafsah",
+            "Suran",
+            "Salamiyah",
+            "Sabburah"
+        ],
+        "Tartus": [
+            "Al-Hamidiyah",
+            "Baniyas",
+            "Duraykish",
+            "Safita",
+            "Mashta al-Helu"
+        ],
+        "Daraa": [
+            "Bosra",
+            "Muzayrib",
+            "Izra",
+            "Al-Shaykh Maskin"
+        ],
+        "Rif Dimashq": [
+            "Babbila",
+            "Douma",
+            "Jaramana",
+            "An-Nabek",
+            "Qara",
+            "Deir Atiyah",
+            "Qudsaya"
+        ]
+    }
+    for country_name in provinces:
+        country_obj = models.Country(country_name=country_name)
+        # country_obj.save()
+        for province in provinces[country_name]:
+            pass
+            # models.Province(province_name=province, country_id=country_obj).save()
+    province_and_county = {}
+    provinces = models.Province.objects.all()
+    for country_name in provinces:
+        if not country_name.country_id.country_name in province_and_county:
+            province_and_county[country_name.country_id.country_name] = []
+        province_and_county[country_name.country_id.country_name].append(country_name.province_name)
+    return Response(data={'data': province_and_county}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

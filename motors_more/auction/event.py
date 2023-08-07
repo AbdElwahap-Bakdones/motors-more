@@ -18,30 +18,36 @@ BIDDING = {0: False}
 
 @settings.SIO.event
 def connect(sid, environ, auth):
-    print('connect ++++++++++++++++++++++++++++++++++++++++ ', sid)
-    user = jwt.decode(
-        jwt=auth.get('token'),
-        algorithms='HS256', key=settings.SECRET_KEY)
-    # print(user.get('user_id'))
-    USER_SID[user.get('user_id')] = sid
-    user_info = models.User.objects.get(pk=user.get('user_id'))
-    USER_INFO[sid] = {'pk': user_info.pk, 'email': user_info.email, 'user_kind': user_info.user_kind}
-    has_auction = models.UserInAuction.objects.filter(
-        user_id=user.get('user_id'),
-        auction_id__status='live auction')
+    try:
+        print('connect ++++++++++++++++++++++++++++++++++++++++ ', sid)
+        if not 'token' in auth:
+            print('no token')
+            return
+        user = jwt.decode(
+            jwt=auth.get('token'),
+            algorithms='HS256', key=settings.SECRET_KEY)
+        # print(user.get('user_id'))
+        USER_SID[user.get('user_id')] = sid
+        user_info = models.User.objects.get(pk=user.get('user_id'))
+        USER_INFO[sid] = {'pk': user_info.pk, 'email': user_info.email, 'user_kind': user_info.user_kind}
+        has_auction = models.UserInAuction.objects.filter(
+            user_id=user.get('user_id'),
+            auction_id__status='live auction')
 
-    if has_auction.filter(status='participant').exists():
-        print('hassssssss liveeeeeeeee auctionnnnnnnnnnnn')
-        for auction in USER_INFO_IN_AUCTION:
-            if user_info.pk in USER_INFO_IN_AUCTION[auction]:
-                settings.SIO.enter_room(sid, auction)
-        settings.SIO.emit('has_live_auction', {'auction_id': has_auction.get().auction_id.pk}, room=sid)
-        return
-    live_auction = models.Auction.objects.filter(status='live auction')
-    if live_auction.exists():  # not has_auction.filter(status__in=['participant']).exists():
-        print('senddddddddddddd notifyyyyyyyyyyyyyyyy tooooo joinnnnnnnnnnn')
-        settings.SIO.emit('liveAuctionTime', {'auction_id': live_auction.first().pk}, room=sid)
-    settings.SIO.save_session(sid, {'username': sid})
+        if has_auction.filter(status='participant').exists():
+            print('hassssssss liveeeeeeeee auctionnnnnnnnnnnn')
+            for auction in USER_INFO_IN_AUCTION:
+                if user_info.pk in USER_INFO_IN_AUCTION[auction]:
+                    settings.SIO.enter_room(sid, auction)
+            settings.SIO.emit('has_live_auction', {'auction_id': has_auction.get().auction_id.pk}, room=sid)
+            return
+        live_auction = models.Auction.objects.filter(status='live auction')
+        if live_auction.exists():  # not has_auction.filter(status__in=['participant']).exists():
+            print('senddddddddddddd notifyyyyyyyyyyyyyyyy tooooo joinnnnnnnnnnn')
+            settings.SIO.emit('liveAuctionTime', {'auction_id': live_auction.first().pk}, room=sid)
+        settings.SIO.save_session(sid, {'username': sid})
+    except Exception as e:
+        print('Error in connect EVENT', e)
 
 
 @settings.SIO.event
